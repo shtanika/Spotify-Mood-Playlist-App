@@ -9,27 +9,27 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       
-      {/* Black Rectangle Section */}
+      {/* large black rectangle main section*/}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
         className="bg-black text-white rounded-2xl p-10 w-full max-w-5xl flex flex-col sm:flex-row justify-between items-start gap-8 mt-[-30px]"
       >
-        {/* Three Gray Sections */}
+        {/* three gray smaller sections */}
         {[
           { title: "Sign in to Spotify", text: "For deeper personalization!" },
           { title: "Enter a prompt", text: "Let us know how you are feeling!" },
           { title: "Generate your playlist", text: "Create the perfect playlist based on your mood and listening history!" }
         ].map(({ title, text }, index) => (
-          <div key={index} className="bg-gray-700 rounded-xl p-6 flex-1 text-center min-h-[150px] flex flex-col"> {/* Added min-h and flex justify-center */}
+          <div key={index} className="bg-gray-700 rounded-xl p-6 flex-1 text-center min-h-[150px] flex flex-col">
             <h3 className="text-xl font-bold">{title}</h3>
             <p className="text-base mt-2 text-gray-300">{text}</p>
           </div>
         ))}
       </motion.div>
 
-      {/* Create Playlist Button */}
+      {/* Create Playlist button */}
       <motion.button
         onClick={() => signIn("spotify")}
         initial={{ opacity: 0, y: 20 }}
