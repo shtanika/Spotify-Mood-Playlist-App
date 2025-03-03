@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import { signIn } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
           className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 mt-6"
           > Sign in with Spotify
         </button>
+        {/*<Button>SHADCN Button</Button>*/}
       </main>
     </div>
   );
