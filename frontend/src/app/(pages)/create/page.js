@@ -5,31 +5,35 @@ import { motion } from "framer-motion";
 import { useRouter } from "next/navigation"; //for redirecting
 
 const CreatePlaylist = () => {
-    
-    const [input, setInput] = useState("");
+
     const router = useRouter();
-    const [showHistory, setShowHistory] = useState(false);
+    const [input, setInput] = useState("");
     const [mood, setMood] = useState("");
     const [error, setError] = useState(null);
-
-    //example previous prompts
+    const [showHistory, setShowHistory] = useState(false);
+    
+    //examples of previous prompts (static for now)
     const promptHistory = [
 	"Chill sunset vibes",
 	"Energizing workout mix",
 	"Mellow and nostalgic",
     ];
 
+    //handles selection from prompt history
     const handlePromptClick = (prompt) => {
 	setInput(prompt);
-	setShowHistory(false); //hide prompt history
+	setShowHistory(false); //hide prompt history after selection
     };
 
+    //handles request for playlist generation
     const handleSubmit = async () => {
 	
 	try {
+	    //simulated API request
 	    const response = await fetch("/api/generate-playlist", {
 		method: "POST",
-		body: JSON.stringify({ mood }),
+		headers: {"Content-Type": "application/json"},
+		body: JSON.stringify({mood}),
 	    });
 
 	    if (!response.ok) {
@@ -38,11 +42,11 @@ const CreatePlaylist = () => {
 
 	    const data = await response.json();
 	    console.log("Playlist data:", data);
-	    setError(null); //clear error
+	    setError(null); //clear previous errors
 	
 	} catch (error) {
 	    console.error("API Error:", error);
-	    setError(error.message);
+	    setError(error.message); //display error
 	    //router.push("/error"); // redirct to error page
 	}
     };
