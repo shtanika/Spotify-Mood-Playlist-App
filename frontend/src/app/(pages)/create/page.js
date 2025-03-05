@@ -2,23 +2,52 @@
 
 import React, { useState } from "react";
 import { motion } from "framer-motion";
+import { useRouter } from "next/navigation"; //for redirecting
 
 const CreatePlaylist = () => {
-  const [input, setInput] = useState("");
-  const [showHistory, setShowHistory] = useState(false);
+    
+    const [input, setInput] = useState("");
+    const router = useRouter();
+    const [showHistory, setShowHistory] = useState(false);
+    const [mood, setMood] = useState("");
+    const [error, setError] = useState(null);
 
-  //example previous prompts
-  const promptHistory = [
-    "Chill sunset vibes",
-    "Energizing workout mix",
-    "Mellow and nostalgic",
-  ];
+    //example previous prompts
+    const promptHistory = [
+	"Chill sunset vibes",
+	"Energizing workout mix",
+	"Mellow and nostalgic",
+    ];
 
-  const handlePromptClick = (prompt) => {
-    setInput(prompt);
-    setShowHistory(false); //hide prompt history
-  };
+    const handlePromptClick = (prompt) => {
+	setInput(prompt);
+	setShowHistory(false); //hide prompt history
+    };
 
+    const handleSubmit = async () => {
+	
+	try {
+	    const response = await fetch("/api/generate-playlist", {
+		method: "POST",
+		body: JSON.stringify({ mood }),
+	    });
+
+	    if (!response.ok) {
+		throw new Error("Failed to generate playlist. Please try again later.");
+	    }
+
+	    const data = await response.json();
+	    console.log("Playlist data:", data);
+	    setError(null); //clear error
+	
+	} catch (error) {
+	    console.error("API Error:", error);
+	    setError(error.message);
+	    //router.push("/error"); // redirct to error page
+	}
+    };
+
+    
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 pb-20 gap-8 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       
@@ -67,12 +96,23 @@ const CreatePlaylist = () => {
       </div>
 
       {/* buttons */}
-      <div className="flex gap-4">
-        {/* Generate button */}
-        <button className="px-6 py-3 border border-black text-black bg-gray-300 rounded-full hover:bg-gray-400 transition">
-          Generate
-        </button>
-      </div>
+	
+	<div className="flex flex-col items-center gap-4">
+	    
+            {/* Generate button */}
+            <button onClick={handleSubmit} className="px-6 py-3 border border-black text-black bg-gray-300 rounded-full hover:bg-gray-400 transition">
+		Generate
+            </button>
+
+	    {/* Error message */}
+	    <div className="min-h-[48px]">
+		{error && (
+		    <div className="mt-6 bg-red-500 text-white p-3 rounded-lg w-80">
+			<strong>Error:</strong> {error}
+		    </div>
+		)}
+	    </div>
+	</div>
     </div>
   );
 };

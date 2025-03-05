@@ -4,10 +4,12 @@ import React from "react";
 import Link from "next/link";
 
 const Footer = () => {
+    
   return (
     <footer className="fixed bottom-0 left-0 w-full bg-gray-800 text-white py-4 px-8 text-sm">
-      <div className="w-full flex items-center justify-between"> {/* Changed container div */}
-        {/* Centered Links */}
+	<div className="w-full flex items-center justify-between">
+	    
+        {/* center Links */}
         <div className="flex justify-center space-x-8 flex-grow ml-20">
           <Link href="/about" className="hover:text-gray-400">
             About
@@ -26,7 +28,6 @@ const Footer = () => {
           </Link>
         </div>
 
-        {/* Copyright on the right */}
         <div className="shrink-0">
           <p>&copy; {new Date().getFullYear()} Moodify</p>
         </div>
