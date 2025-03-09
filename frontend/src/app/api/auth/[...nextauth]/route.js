@@ -33,8 +33,8 @@ export const handler = NextAuth({
         // uses JWT, json web token, for role verification and user permissons
         async jwt({ token, account }) {
             if (account) {
-                token.accessToken = account.accessToken;
-                token.refreshToken = account.refreshToken;
+                token.accessToken = account.access_token;
+                token.refreshToken = account.refresh_token;
             }
             return token;
         },
