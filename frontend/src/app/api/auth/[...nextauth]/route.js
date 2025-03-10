@@ -15,7 +15,9 @@ import NextAuth from 'next-auth';
 import SpotifyProvider from 'next-auth/providers/spotify';
 
 // can add more scopes later
-const scope = 'user-read-private user-read-email';
+// User scopes -> user-read-private, user-read-email, user-top-read, user-library-read (Could add Save Tracks for Current User with user-library-modify scope)
+// Playlist scopes -> playlist-modify-public, playlist-modify-private, playlist-read-private, playlist-read-collaborative (Could add Custom Playlist Cover Image with ugc-image-upload scope) 
+const scope = 'user-read-private user-read-email user-library-read user-top-read playlist-modify-public playlist-modify-private playlist-read-private playlist-read-collaborative'; 
 
 // Spotify authorization URL, uses scope as a parameter
 const authorizationUrl = `https://accounts.spotify.com/authorize?scope=${scope}`;
