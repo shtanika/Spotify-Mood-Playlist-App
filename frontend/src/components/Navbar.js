@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import Link from "next/link";
 import { signIn, signOut, useSession } from "next-auth/react"; 
 import { BsSpotify } from "react-icons/bs"; 
@@ -10,7 +10,11 @@ import { FaUserCircle } from "react-icons/fa";
 
 const Navbar = () => {
   const { data: session } = useSession(); 
-  console.log(session);
+  const [imageError, setImageError] = useState(false);
+
+  const handleImageError = () => {
+    setImageError(true);
+  };
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 shadow-xl bg-white text-black">
@@ -44,7 +48,18 @@ const Navbar = () => {
               >
                 Sign Out
               </button>
-              <FaUserCircle size={28} className="text-black" />
+              {session.user?.image && !imageError ? (
+                <Image
+                  src={session.user.image}
+                  alt="User Profile"
+                  width={32}
+                  height={32}
+                  className="rounded-full"
+                  onError={handleImageError}
+                />
+              ) : (
+                <FaUserCircle size={28} className="text-black" />
+              )}
             </div>
           ) : (
             /* Not Signed In: Show Sign In Button */
