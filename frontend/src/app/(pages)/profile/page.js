@@ -16,7 +16,7 @@ const Profile = () => {
   const [notifications, setNotifications] = useState(true);
   const [explicitFilter, setExplicitFilter] = useState(false);
 
-    useEffect(() => {
+  useEffect(() => {
 	document.body.classList.toggle("bg-white", !darkMode);
 	document.body.classList.toggle("bg-black", darkMode);
     }, [darkMode]);
