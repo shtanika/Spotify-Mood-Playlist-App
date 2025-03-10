@@ -43,6 +43,9 @@
   --sidebar-accent-foreground: oklch(0.21 0.006 285.885);
   --sidebar-border: oklch(0.92 0.004 286.32);
   --sidebar-ring: oklch(0.705 0.015 286.067);
+  --pastel-gradient-start: #ff7f7f;
+  --pastel-gradient-middle: #ffb77f;
+  --pastel-gradient-end: #d47fff;
 }
 
 .dark {
@@ -125,5 +128,11 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-pastel-gradient {
+    background-image: linear-gradient(to right, var(--pastel-gradient-start), var(--pastel-gradient-middle), var(--pastel-gradient-end));
   }
 }
