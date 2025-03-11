@@ -22,21 +22,17 @@ export default function Home() {
           YOUR MOOD
         </motion.h1>
 
-        <motion.button
+        <button
           onClick={() => signIn("spotify")}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5 }}
-          className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-lg sm:text-xl h-10 sm:h-12 px-6 sm:px-8 mt-16"
-          >
-	  <span className="flex items-center justify-center">
+          class="btn"
+        >
+          <span className="flex items-center justify-center relative z-10">
             CREATE MY CUSTOM PLAYLIST
             <ChevronRight className="w-6 h-6 ml-2" />
           </span>
-        </motion.button>
 
-        {/* old button */}
-        {/* <Button>SHADCN Button</Button> */}
+        </button>
+
       </main>
     </div>
   );
