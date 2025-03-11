@@ -133,6 +133,18 @@
 
 @layer utilities {
   .bg-pastel-gradient {
-    background-image: linear-gradient(to right, var(--pastel-gradient-start), var(--pastel-gradient-middle), var(--pastel-gradient-end));
+    background-image: linear-gradient(
+        to bottom,
+        white 0%, 
+        rgba(245, 204, 224, 0.8) 15%,
+        rgba(241, 217, 181, 0.8) 30%,
+        rgba(245, 247, 180, 0.8) 45%,
+        rgba(173, 243, 210, 0.8) 60%,
+        rgba(209, 247, 243, 0.8) 75%,
+        rgba(222, 188, 240, 0.8) 90%,
+        white 100%
+      ),
+      radial-gradient(circle, white, transparent 70%);
+    background-blend-mode: overlay;
   }
 }
