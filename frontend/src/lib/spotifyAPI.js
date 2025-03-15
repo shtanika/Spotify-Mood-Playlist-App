@@ -105,6 +105,7 @@ export const searchTracks = async (accessToken, search, genre = '', tag = '', li
 };
 
 // Gets more specific data of a track
+// Doesn't contain genre of a track, you will need to use the album's genre or artist's genre
 // Reference: https://developer.spotify.com/documentation/web-api/reference/get-track
 export const getTrack = async (accessToken, trackID) => {
     const url = `https://api.spotify.com/v1/tracks/${trackID}`; // API endpoint to get a track
@@ -125,6 +126,94 @@ export const getTrack = async (accessToken, trackID) => {
     return response.json();
 }
 
+
+
+// Artist and Album functions
+// Possible to get genre of an artist or album
+
+// Reference: https://developer.spotify.com/documentation/web-api/reference/get-an-artist
+export const getArtistData = async (accessToken, artistID) => {
+    const url = `https://api.spotify.com/v1/artists/${artistID}`; // API endpoint to get an artist
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+
+    // if response is not ok, throw error
+    if (!response.ok){
+        throw new Error('Failed to get Artist data');
+    }
+
+    // Return the response as JSON
+    return response.json();
+}
+
+// Reference: https://developer.spotify.com/documentation/web-api/reference/get-multiple-artists
+// artistIDs is a string of artist IDs separated by commas
+export const getMultipleArtistsData = async (accessToken, artistIDs) => {
+    const url = `https://api.spotify.com/v1/artists?ids=${artistIDs}`; // API endpoint to get multiple artists
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+
+    // if response is not ok, throw error
+    if (!response.ok){
+        throw new Error('Failed to get Multiple Artists data');
+    }
+
+    // Return the response as JSON
+    return response.json();
+}
+
+// Get Album data
+
+// Reference: https://developer.spotify.com/documentation/web-api/reference/get-an-album
+export const getAlbumData = async (accessToken, albumID) => {
+    const url = `https://api.spotify.com/v1/albums/${albumID}`; // API endpoint to get an album
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+
+    // if response is not ok, throw error
+    if (!response.ok){
+        throw new Error('Failed to get Album data');
+    }
+
+    // Return the response as JSON
+    return response.json();
+}
+
+// Reference: https://developer.spotify.com/documentation/web-api/reference/get-multiple-albums
+// albumIDs is a string of album IDs separated by commas
+export const getMultipleAlbumsData = async (accessToken, albumIDs) => {
+    const url = `https://api.spotify.com/v1/albums?ids=${albumIDs}`; // API endpoint to get multiple albums
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+
+    // if response is not ok, throw error
+    if (!response.ok){
+        throw new Error('Failed to get Multiple Albums data');
+    }
+
+    // Return the response as JSON
+    return response.json();
+}
 
 // Playlist functions (NEEDS MORE TESTING)
 // Deleting a playlist is not supported by the Spotify API, but you can remove tracks from a playlist

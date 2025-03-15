@@ -1,14 +1,22 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 
+
+
+
+
 const Profile = () => {
 
   // placeholder user data REPLACE LATER
+  const {data: session, status} = useSession();
+  const [userData, setUserData] = useState(null);
+
   const [username, setUsername] = useState("User12345");
   const [email, setEmail] = useState("user12345@gmail.com");
   const userSince = "March 2025";
@@ -20,6 +28,31 @@ const Profile = () => {
 	document.body.classList.toggle("bg-white", !darkMode);
 	document.body.classList.toggle("bg-black", darkMode);
     }, [darkMode]);
+
+  useEffect(() => {
+    console.log("Session Status:", session);
+    console.log("Session:", session);
+    if (status === "loading") return;
+    if (status === "authenticated") {
+      console.log("Authenticated");
+      console.log("Access Token:", session.accessToken);     
+    }
+    if(session?.accessToken){
+      const fetchUserData = async () => {
+        try {
+          const response = await fetch(`/api/spotify/userData?accessToken=${session.accessToken}`);
+          console.log("API response status: ", response.status);
+          const data = await response.json();
+          setUserData(data);
+        } catch (error) {
+          console.error("Error fetching user data: ", error);
+        }
+      };
+      fetchUserData();
+    } else {
+      console.log("Not authenticated");
+    }
+  }, [session?.accessToken, status]);
 
     const boxStyle = darkMode
 	  ? "bg-black text-white border-gray-700"
@@ -38,7 +71,7 @@ const Profile = () => {
 
           {/* username and join date */}
           <div>
-            <h1 className="text-2xl font-bold">{username}</h1>
+            <h1 className="text-2xl font-bold">{userData? userData.display_name : "Loading. . ."}</h1>
             <p className="text-gray-800 text-sm">User since {userSince}</p>
           </div>
         </div>

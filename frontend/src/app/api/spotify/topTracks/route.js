@@ -1,6 +1,6 @@
 // get function that will fetch the top tracks from the Spotify API
 
-import { getSpotifySavedTracks } from "@/lib/spotifyAPI";
+import { getSpotifyTopTracks } from "@/lib/spotifyAPI";
 
 export async function GET(req){
     const url = new URL(req.url);
