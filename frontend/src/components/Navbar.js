@@ -22,7 +22,7 @@ const Navbar = () => {
         {/* Logo & Title */}
         <Link href="/home" className="flex items-center gap-3 cursor-pointer">
           <Image src={logo} alt="Logo" width={40} height={40} />
-          <span className="text-2xl font-bold" style={{ fontFamily: 'cursive' }}>Moodify</span>
+          <span className="text-2xl open-sans-semibold">Moodify</span>
         </Link>
 
         {/* Navigation Links */}

@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: var(--font-geist-sans);
+  --font-sans: 'Open Sans', sans-serif;
   --font-mono: var(--font-geist-mono);
 }
 
@@ -129,22 +129,26 @@
   body {
     @apply bg-background text-foreground;
   }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-open-sans), sans-serif;
+    font-weight: 600; /* Apply Semibold to headings */
+  }
 }
 
 @layer utilities {
   .bg-pastel-gradient {
     background-image: linear-gradient(
-        to bottom,
-        white 0%, 
-        rgba(245, 204, 224, 0.8) 15%,
-        rgba(241, 217, 181, 0.8) 30%,
-        rgba(245, 247, 180, 0.8) 45%,
-        rgba(173, 243, 210, 0.8) 60%,
-        rgba(209, 247, 243, 0.8) 75%,
-        rgba(222, 188, 240, 0.8) 90%,
-        white 100%
-      ),
-      radial-gradient(circle, white, transparent 70%);
+      to bottom,
+      white 0%,
+      rgba(245, 204, 224, 0.8) 14%,
+      rgba(241, 217, 181, 0.8) 28%,
+      rgba(245, 247, 180, 0.8) 42%,
+      rgba(173, 243, 210, 0.8) 56%,
+      rgba(209, 247, 243, 0.8) 70%,
+      rgba(222, 188, 240, 0.8) 84%,
+      white 100%
+    ),
+      radial-gradient(circle, white, transparent 80%);
     background-blend-mode: overlay;
   }
 }
