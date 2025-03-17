@@ -71,6 +71,24 @@ export const getSpotifyTopTracks = async (accessToken, limit = 5) => {
     }));
 };
 
+
+// Reference: https://developer.spotify.com/documentation/web-api/reference/get-users-top-artists-and-tracks/
+export const getSpotifyTopArtists = async (accessToken, limit = 5) => {
+    const topArtistsUrl = `https://api.spotify.com/v1/me/top/artists?limit=${limit}`; // url to get top artists
+    const response = await fetch(topArtistsUrl, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+    // if response is not ok, throw error
+    if (!response.ok){
+        throw new Error('Failed to get Spotify top artists');
+    }
+    // return response as json
+    return response.json();
+};
+
 // Reference: https://developer.spotify.com/documentation/web-api/reference/search
 export const searchTracks = async (accessToken, search, genre = '', tag = '', limit = 5) => {
     // start with basic search term
