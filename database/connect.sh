@@ -1,0 +1,1 @@
+psql -U admin -d database -h 0.0.0.0
