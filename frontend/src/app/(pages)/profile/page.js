@@ -20,6 +20,7 @@ const Profile = () => {
   const [topTracksData, setTopTracksData] = useState(null);
   const [topArtistsData, setTopArtistsData] = useState(null);
   const [savedTracksData, setSavedTracksData] = useState(null);
+  const [userPlaylistsData, setUserPlaylistData] = useState(null);
 
 
   const [username, setUsername] = useState("User12345");
@@ -47,11 +48,12 @@ const Profile = () => {
         try {
           
           //const response = await fetch(`/api/spotify/userData?accessToken=${session.accessToken}`);
-          const [userResponse, tracksResponse, artistsResponse, savedTracksResponse] = await Promise.all([
+          const [userResponse, tracksResponse, artistsResponse, savedTracksResponse, userPlaylistsResponse] = await Promise.all([
             fetch(`/api/spotify/userData?accessToken=${session.accessToken}`),
             fetch(`/api/spotify/topTracks?accessToken=${session.accessToken}`),
             fetch(`/api/spotify/topArtists?accessToken=${session.accessToken}`),
-            fetch(`/api/spotify/savedTracks?accessToken=${session.accessToken}?limit=4`)
+            fetch(`/api/spotify/savedTracks?accessToken=${session.accessToken}?limit=4`),
+            fetch(`/api/spotify/getUserPlaylists?accessToken=${session.accessToken}`)
           ]);
           console.log("API response statuses: ", userResponse.status, tracksResponse.status, artistsResponse.status);
           const userData = await userResponse.json();
@@ -62,6 +64,8 @@ const Profile = () => {
           console.log("Top Artists Data: ", topArtistsData);
           const savedTracksData = await savedTracksResponse.json();
           console.log("Saved Tracks Data: ", savedTracksData);
+          const userPlaylistsData = await userPlaylistsResponse.json();
+          console.log("User Playlists Data: ", userPlaylistsData);
 
           // check for explicit filter
           if(userData.explicit_content?.filter_enabled === false){
@@ -73,6 +77,7 @@ const Profile = () => {
           setTopTracksData(topTracksData);
           setTopArtistsData(topArtistsData.items);
           setSavedTracksData(savedTracksData);
+          setUserPlaylistData(userPlaylistsData.items);
         } catch (error) {
           console.error("Error fetching user data: ", error);
         }
@@ -192,7 +197,7 @@ const Profile = () => {
         >
           <div>
             <h2 className="text-lg font-semibold mb-2">Your Most Recent Playlist</h2>
-            <p className="text-gray-400 text-sm">"Chill Vibes Mix"</p>
+            <p className="text-gray-400 text-sm">{userPlaylistsData? userPlaylistsData[0]?.name : "Loading. . ."}</p>
             <Link href="/playlist-view" className="text-blue-400 text-sm hover:underline flex items-center mt-2">
               View Playlist <ChevronRight className="w-4 h-4 ml-1" />
             </Link>

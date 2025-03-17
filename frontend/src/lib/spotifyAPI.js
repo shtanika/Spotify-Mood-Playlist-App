@@ -263,6 +263,7 @@ export const createSpotifyPlaylist = async (accessToken, playlist_name, playlist
     return response.json();
 };
 
+
 // Reference: https://developer.spotify.com/documentation/web-api/reference/add-tracks-to-playlist
 export const addTracksToPlaylist = async (accessToken, playlistID, trackURIs) => {
     const url = `https://api.spotify.com/v1/playlists/${playlistID}/tracks`; // API endpoint to add tracks to a playlist
@@ -329,7 +330,7 @@ export const getPlaylist = async (accessToken, playlistID) => {
 
     // Return the response as JSON
     return response.json();
-}
+};
 
 // Reference: https://developer.spotify.com/documentation/web-api/reference/get-playlists-tracks
 // offset is the index of the first track to return, limit is the maximum number of tracks to return
@@ -350,4 +351,25 @@ export const getPlaylistTracks = async (accessToken, playlistID, offset = 0, lim
 
     // return response as json
     return response.json();
-}
+};
+
+// Reference: https://developer.spotify.com/documentation/web-api/reference/get-a-list-of-current-users-playlists
+export const getUserPlaylists = async (accessToken, offset = 0, limit = 5) => {
+    const url = `https://api.spotify.com/v1/me/playlists?offset=${offset}&limit=${limit}`;
+
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+        },
+    });
+    
+    // if response is not ok, throw error
+    if(!response.ok){
+        throw new Error('Failed to get user playlists');
+    }
+
+    // return response as json
+    return response.json();
+
+};
