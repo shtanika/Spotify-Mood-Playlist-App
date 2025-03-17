@@ -2,6 +2,9 @@ services:
   db:
     image: postgres:latest
     container_name: postgres_db
+    hostname: postgres_db
+    networks:
+      - shared_network
     env_file:
       - .env
     ports:
@@ -10,3 +13,7 @@ services:
       - ./init-scripts:/docker-entrypoint-initdb.d 
 volumes:
   db_data:
+
+networks:
+  shared_network:
+    external: true
