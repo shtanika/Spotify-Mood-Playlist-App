@@ -75,9 +75,9 @@ const Profile = () => {
           }
           setUserData(userData);
           setTopTracksData(topTracksData);
-          setTopArtistsData(topArtistsData.items);
+          setTopArtistsData(topArtistsData);
           setSavedTracksData(savedTracksData);
-          setUserPlaylistData(userPlaylistsData.items);
+          setUserPlaylistData(userPlaylistsData);
         } catch (error) {
           console.error("Error fetching user data: ", error);
         }
