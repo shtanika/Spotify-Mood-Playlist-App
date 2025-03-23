@@ -24,7 +24,7 @@ export default function Home() {
 
         <button
           onClick={() => signIn("spotify")}
-          class="btn"
+          className="btn"
         >
           <span className="flex items-center justify-center relative z-10">
             CREATE MY CUSTOM PLAYLIST
