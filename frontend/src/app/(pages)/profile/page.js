@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { set } from "lodash";
 
 
 
@@ -16,6 +17,11 @@ const Profile = () => {
   // placeholder user data REPLACE LATER
   const {data: session, status} = useSession();
   const [userData, setUserData] = useState(null);
+  const [topTracksData, setTopTracksData] = useState(null);
+  const [topArtistsData, setTopArtistsData] = useState(null);
+  const [savedTracksData, setSavedTracksData] = useState(null);
+  const [userPlaylistsData, setUserPlaylistData] = useState(null);
+
 
   const [username, setUsername] = useState("User12345");
   const [email, setEmail] = useState("user12345@gmail.com");
@@ -40,10 +46,38 @@ const Profile = () => {
     if(session?.accessToken){
       const fetchUserData = async () => {
         try {
-          const response = await fetch(`/api/spotify/userData?accessToken=${session.accessToken}`);
-          console.log("API response status: ", response.status);
-          const data = await response.json();
-          setUserData(data);
+          
+          //const response = await fetch(`/api/spotify/userData?accessToken=${session.accessToken}`);
+          const [userResponse, tracksResponse, artistsResponse, savedTracksResponse, userPlaylistsResponse] = await Promise.all([
+            fetch(`/api/spotify/userData?accessToken=${session.accessToken}`),
+            fetch(`/api/spotify/topTracks?accessToken=${session.accessToken}`),
+            fetch(`/api/spotify/topArtists?accessToken=${session.accessToken}`),
+            fetch(`/api/spotify/savedTracks?accessToken=${session.accessToken}?limit=4`),
+            fetch(`/api/spotify/getUserPlaylists?accessToken=${session.accessToken}`)
+          ]);
+          console.log("API response statuses: ", userResponse.status, tracksResponse.status, artistsResponse.status);
+          const userData = await userResponse.json();
+          console.log("User Data: ", userData);
+          const topTracksData = await tracksResponse.json();
+          console.log("Top Tracks Data: ", topTracksData);
+          const topArtistsData = await artistsResponse.json();
+          console.log("Top Artists Data: ", topArtistsData);
+          const savedTracksData = await savedTracksResponse.json();
+          console.log("Saved Tracks Data: ", savedTracksData);
+          const userPlaylistsData = await userPlaylistsResponse.json();
+          console.log("User Playlists Data: ", userPlaylistsData);
+
+          // check for explicit filter
+          if(userData.explicit_content?.filter_enabled === false){
+            setExplicitFilter(true);
+          } else{
+            setExplicitFilter(false);
+          }
+          setUserData(userData);
+          setTopTracksData(topTracksData);
+          setTopArtistsData(topArtistsData);
+          setSavedTracksData(savedTracksData);
+          setUserPlaylistData(userPlaylistsData);
         } catch (error) {
           console.error("Error fetching user data: ", error);
         }
@@ -67,6 +101,11 @@ const Profile = () => {
         
         <div className="flex items-center gap-6">
           {/* profile pic */}
+          <img 
+            src={userData?.images[0]?.url || null}
+            alt="Profile Picture"
+            className="w-full h-full object-cover"
+          />
           <div className="w-30 h-30 sm:w-28 sm:h-28 rounded-full bg-gray-600" />
 
           {/* username and join date */}
@@ -84,7 +123,7 @@ const Profile = () => {
             <h2 className="text-lg font-semibold mb-2">Change Username</h2>
             <input 
               type="text"
-              value={username}
+              value={userData? userData.display_name : "Loading. . ."}
               onChange={(e) => setUsername(e.target.value)}
               className={`w-full p-2 rounded-lg border focus:outline-none ${darkMode ? "bg-gray-800 text-white border-gray-600" : "bg-gray-100 text-black border-gray-400"}`}
             />
@@ -95,7 +134,7 @@ const Profile = () => {
             <h2 className="text-lg font-semibold mb-2">Change Email</h2>
             <input 
               type="email"
-              value={email}
+              value={userData? userData.email : "Loading. . ."}
               onChange={(e) => setEmail(e.target.value)}
               className={`w-full p-2 rounded-lg border focus:outline-none ${darkMode ? "bg-gray-800 text-white border-gray-600" : "bg-gray-100 text-black border-gray-400"}`}
             />
@@ -158,7 +197,7 @@ const Profile = () => {
         >
           <div>
             <h2 className="text-lg font-semibold mb-2">Your Most Recent Playlist</h2>
-            <p className="text-gray-400 text-sm">"Chill Vibes Mix"</p>
+            <p className="text-gray-400 text-sm">{userPlaylistsData? userPlaylistsData[0]?.name : "Loading. . ."}</p>
             <Link href="/playlist-view" className="text-blue-400 text-sm hover:underline flex items-center mt-2">
               View Playlist <ChevronRight className="w-4 h-4 ml-1" />
             </Link>
@@ -175,10 +214,18 @@ const Profile = () => {
         >
           <h2 className="text-lg font-semibold mb-2">Your Library</h2>
           <div className="grid grid-cols-2 gap-2">
-            <div className="w-full h-20 bg-gray-700 rounded-lg"></div>
-            <div className="w-full h-20 bg-gray-700 rounded-lg"></div>
-            <div className="w-full h-20 bg-gray-700 rounded-lg"></div>
-            <div className="w-full h-20 bg-gray-700 rounded-lg"></div>
+            <div className="w-full h-20 bg-gray-700 rounded-lg">
+              <h3>{savedTracksData? savedTracksData[0]?.name : "Loading. . ."}</h3>
+            </div>
+            <div className="w-full h-20 bg-gray-700 rounded-lg">
+            <h3>{savedTracksData? savedTracksData[1]?.name : "Loading. . ."}</h3>
+            </div>
+            <div className="w-full h-20 bg-gray-700 rounded-lg">
+            <h3>{savedTracksData? savedTracksData[2]?.name : "Loading. . ."}</h3>
+            </div>
+            <div className="w-full h-20 bg-gray-700 rounded-lg">
+            <h3>{savedTracksData? savedTracksData[3]?.name : "Loading. . ."}</h3>
+            </div>
           </div>
           <Link href="/library" className="text-blue-400 text-sm hover:underline flex items-center mt-2">
             Open Library <ChevronRight className="w-4 h-4 ml-1" />
@@ -196,8 +243,19 @@ const Profile = () => {
 	    <div>
 		<h2 className="text-lg font-semibold mb-2">Your Listening Stats</h2>
 		<p className="text-gray-400 text-sm"><strong>Top Genre:</strong> Lo-Fi</p>
-		<p className="text-gray-400 text-sm"><strong>Top Artist:</strong> LoFiBeatsForYou</p>
-		<p className="text-gray-400 text-sm"><strong>Top Song:</strong> "A Night in the City"</p>
+		{topArtistsData && topArtistsData.length > 0 ? (
+      <p className="text-gray-400 text-sm"><strong>Top Artist:</strong> {topArtistsData[0]?.name || "Unknown Artist"}</p>
+    ) : (
+      <p className="text-gray-400 text-sm"><strong>Top Artist:</strong> No artist found </p>
+    )}
+    {topTracksData && topTracksData.length > 0 ? (
+      <p className="text-gray-400 text-sm"><strong>Top Song:</strong> {topTracksData[0]?.name || "Unknown Song"}</p>
+    ) : (
+      <p className="text-gray-400 text-sm"><strong>Top Song:</strong> Loading...</p>
+    )}
+    {/*<p className="text-gray-400 text-sm"><strong>Top Artist:</strong> {topArtistsData[0]?.name || "Loading..."}</p>
+		<p className="text-gray-400 text-sm"><strong>Top Song:</strong> {topTracksData[0]?.name || "Loading..."}</p> */}
+    
 	    </div>
 	  <div className="w-30 h-30 bg-gray-700 rounded-lg mb-3"></div> {/* placeholder */}
         </motion.div>
