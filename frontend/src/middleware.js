@@ -12,12 +12,19 @@ export async function middleware(req){
 };
 
 // need to modify nextAuth for session management first
-/* Restrict access to these routes if not signed in
+/* Restrict access to these routes if not signed in doesn't work correctly
+
+Originally, but unable to access pages even when signed in. So empty array for now.
 export const config = {
     matcher: [
         '/library',
         '/playlist',
-        '/create'
+        '/create',
+        '/profile
     ]
 };
+
 */
+export const config = {
+    matcher: []
+};
