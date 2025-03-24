@@ -9,9 +9,6 @@ import Link from "next/link";
 import { set } from "lodash";
 
 
-
-
-
 const Profile = () => {
 
   // placeholder user data REPLACE LATER
@@ -91,22 +88,22 @@ const Profile = () => {
     const boxStyle = darkMode
 	  ? "bg-black text-white border-gray-700"
 	  : "bg-white text-black border-gray-300";
+
     
     return (
 
-	<div className="flex flex-col sm:flex-row min-h-screen px-8 sm:px-20 pt-32 gap-16 font-[family-name:var(--font-geist-sans)] max-w-7xl mx-auto">
+	<div className="flex flex-col sm:flex-row min-h-screen px-8 sm:px-20 pt-22 gap-16 sm:gap-45 font-[family-name:var(--font-geist-sans)] max-w-7xl mx-auto">
       
       {/* LEFT SIDE: PROFILE SETTINGS */}
-      <div className="flex-[1] flex flex-col gap-8">
+      <div className="flex-[2] flex flex-col gap-8">
         
         <div className="flex items-center gap-6">
           {/* profile pic */}
           <img 
             src={userData?.images[0]?.url || null}
             alt="Profile Picture"
-            className="w-full h-full object-cover"
+            className="w-25 h-25 object-cover rounded-full"
           />
-          <div className="w-30 h-30 sm:w-28 sm:h-28 rounded-full bg-gray-600" />
 
           {/* username and join date */}
           <div>
@@ -189,76 +186,120 @@ const Profile = () => {
       <div className="flex-[1] flex flex-col gap-8 pt-6">
         
         {/* recent playlist */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.5 }}
-          className={`${boxStyle} p-6 rounded-3xl shadow-md border flex justify-between items-center`}
-        >
-          <div>
-            <h2 className="text-lg font-semibold mb-2">Your Most Recent Playlist</h2>
-            <p className="text-gray-400 text-sm">{userPlaylistsData? userPlaylistsData[0]?.name : "Loading. . ."}</p>
-            <Link href="/playlist-view" className="text-blue-400 text-sm hover:underline flex items-center mt-2">
-              View Playlist <ChevronRight className="w-4 h-4 ml-1" />
-            </Link>
-          </div>
-          <div className="w-30 h-30 bg-gray-700 rounded-lg" /> {/* placeholder */}
-        </motion.div>
+	  <motion.div
+	      initial={{ opacity: 0, y: 10 }}
+	      animate={{ opacity: 1, y: 0 }}
+	      transition={{ duration: 0.5 }}
+	      className={`${boxStyle} p-6 rounded-3xl shadow-md border flex items-start justify-between`}
+	  >
+	      <div className="flex-1">
+		  <h2 className="text-lg font-semibold leading-6 mb-2">
+		      Your Most <br />
+		      Recent Playlist
+		  </h2>
+		  <p className="text-gray-400 text-sm">
+		      {userPlaylistsData ? userPlaylistsData[0]?.name : "Loading. . ."}
+		  </p>
+		  <Link
+		      href="/playlist-view"
+		      className="text-blue-400 text-sm hover:underline flex items-center mt-2"
+		  >
+		      View Playlist <ChevronRight className="w-4 h-4 ml-1" />
+		  </Link>
+	      </div>
+	      {userPlaylistsData &&
+	       userPlaylistsData[0]?.images &&
+	       userPlaylistsData[0].images.length > 0 ? (
+		   <img
+		       src={userPlaylistsData[0].images[0].url}
+		       alt="Most Recent Playlist"
+		       className="w-30 h-30 rounded-lg object-cover"
+		   />
+	       ) : (
+		   <div className="w-30 h-30 bg-gray-700 rounded-lg" /> //display placeholder if no image
+	       )}
+	  </motion.div>
 
         {/* Library */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }} 
-          animate={{ opacity: 1, y: 0 }} 
+        {/* Library */}
+        <motion.div
+          initial={{ opacity: 0, y: 10 }}
+          animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
           className={`${boxStyle} p-6 rounded-3xl shadow-md border`}
         >
           <h2 className="text-lg font-semibold mb-2">Your Library</h2>
-          <div className="grid grid-cols-2 gap-2">
-            <div className="w-full h-20 bg-gray-700 rounded-lg">
-              <h3>{savedTracksData? savedTracksData[0]?.name : "Loading. . ."}</h3>
-            </div>
-            <div className="w-full h-20 bg-gray-700 rounded-lg">
-            <h3>{savedTracksData? savedTracksData[1]?.name : "Loading. . ."}</h3>
-            </div>
-            <div className="w-full h-20 bg-gray-700 rounded-lg">
-            <h3>{savedTracksData? savedTracksData[2]?.name : "Loading. . ."}</h3>
-            </div>
-            <div className="w-full h-20 bg-gray-700 rounded-lg">
-            <h3>{savedTracksData? savedTracksData[3]?.name : "Loading. . ."}</h3>
-            </div>
+          <div className="flex gap-2">
+            {userPlaylistsData &&
+              userPlaylistsData.slice(0, 4).map((playlist, index) => (
+                <div key={index} className="w-20 h-20 overflow-hidden relative">
+                  {playlist.images && playlist.images.length > 0 ? (
+                    <img
+                      src={playlist.images[0].url}
+                      alt={playlist.name}
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="w-full h-full bg-gray-700" />
+                  )}
+                </div>
+              ))}
           </div>
-          <Link href="/library" className="text-blue-400 text-sm hover:underline flex items-center mt-2">
+          <Link
+            href="/library"
+            className="text-blue-400 text-sm hover:underline flex items-center mt-2"
+          >
             Open Library <ChevronRight className="w-4 h-4 ml-1" />
           </Link>
         </motion.div>
 
 
         {/* user stats?? */}
-        <motion.div 
-          initial={{ opacity: 0, y: 10 }} 
-          animate={{ opacity: 1, y: 0 }} 
-          transition={{ duration: 0.6 }}
-          className={`${boxStyle} p-6 rounded-3xl shadow-md border flex justify-between items-center`}
-        >
-	    <div>
-		<h2 className="text-lg font-semibold mb-2">Your Listening Stats</h2>
-		<p className="text-gray-400 text-sm"><strong>Top Genre:</strong> Lo-Fi</p>
-		{topArtistsData && topArtistsData.length > 0 ? (
-      <p className="text-gray-400 text-sm"><strong>Top Artist:</strong> {topArtistsData[0]?.name || "Unknown Artist"}</p>
-    ) : (
-      <p className="text-gray-400 text-sm"><strong>Top Artist:</strong> No artist found </p>
-    )}
-    {topTracksData && topTracksData.length > 0 ? (
-      <p className="text-gray-400 text-sm"><strong>Top Song:</strong> {topTracksData[0]?.name || "Unknown Song"}</p>
-    ) : (
-      <p className="text-gray-400 text-sm"><strong>Top Song:</strong> Loading...</p>
-    )}
-    {/*<p className="text-gray-400 text-sm"><strong>Top Artist:</strong> {topArtistsData[0]?.name || "Loading..."}</p>
-		<p className="text-gray-400 text-sm"><strong>Top Song:</strong> {topTracksData[0]?.name || "Loading..."}</p> */}
-    
-	    </div>
-	  <div className="w-30 h-30 bg-gray-700 rounded-lg mb-3"></div> {/* placeholder */}
-        </motion.div>
+	  <motion.div
+	      initial={{ opacity: 0, y: 10 }}
+	      animate={{ opacity: 1, y: 0 }}
+	      transition={{ duration: 0.6 }}
+	      className={`${boxStyle} p-6 rounded-3xl shadow-md border flex justify-between items-center`}
+	  >
+	      <div>
+		  <h2 className="text-lg font-semibold mb-2">Your Listening Stats</h2>
+		  <p className="text-gray-400 text-sm">
+		      <strong>Top Genre:</strong> Lo-Fi
+		  </p>
+		  {topArtistsData && topArtistsData.length > 0 ? (
+		      <p className="text-gray-400 text-sm">
+			  <strong>Top Artist:</strong> {topArtistsData[0]?.name || "Unknown Artist"}
+		      </p>
+		  ) : (
+		      <p className="text-gray-400 text-sm">
+			  <strong>Top Artist:</strong> No artist found
+		      </p>
+		  )}
+		  {topTracksData && topTracksData.length > 0 ? (
+		      <p className="text-gray-400 text-sm">
+			  <strong>Top Song:</strong> {topTracksData[0]?.name || "Unknown Song"}
+		      </p>
+		  ) : (
+		      <p className="text-gray-400 text-sm">
+			  <strong>Top Song:</strong> Loading...
+		      </p>
+		  )}
+		  {/*<p className="text-gray-400 text-sm"><strong>Top Artist:</strong> {topArtistsData[0]?.name || "Loading..."}</p>
+		     <p className="text-gray-400 text-sm"><strong>Top Song:</strong> {topTracksData[0]?.name || "Loading..."}</p> */}
+	      </div>
+	      {topArtistsData &&
+	       topArtistsData.length > 0 &&
+	       topArtistsData[0].images &&
+	       topArtistsData[0].images.length > 0 ? (
+		   <img
+		       src={topArtistsData[0].images[0].url}
+		       alt={topArtistsData[0].name}
+		       className="w-30 h-30 rounded-lg object-cover mb-3"
+		   />
+	       ) : (
+		   <div className="w-30 h-30 bg-gray-700 rounded-lg mb-3"></div> // placeholder
+	       )}
+	  </motion.div>
 	    
       </div>
 
