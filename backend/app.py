@@ -72,17 +72,25 @@ def hello():
     return "Hello, World!"
 
 # get the user with the given the spotify_id
-@app.route('/get_user/<spotify_id>')
-def get_user_by_spotify_id(spotify_id):
-    user = User.query.filter_by(spotify_id=spotify_id).first()
-    return {
-        'id': user.id,
-        'spotify_id': user.spotify_id,
-        'email': user.email,
-        'display_name': user.display_name,
-        'profile_image': user.profile_image,
-        'created_at': user.created_at
-    }
+@api.route('/get_user/<spotify_id>', methods=['GET'])
+class GetUser(Resource):
+    @api.doc(description="Get a user by their Spotify ID.")
+    @api.response(200, 'User found')
+    @api.response(404, 'User not found')
+    @api.response(500, 'Internal server error')
+    def get(self, spotify_id):
+        user = User.query.filter_by(spotify_id=spotify_id).first()
+        if not user:
+            return {'error': 'User not found'}, 404
+
+        return {
+            'id': str(user.id),
+            'spotify_id': user.spotify_id,
+            'email': user.email,
+            'display_name': user.display_name,
+            'profile_image': user.profile_image,
+            'created_at': user.created_at.isoformat()
+        }
 
 @api.route('/create_user', methods=['POST'])
 class CreateUser(Resource):
