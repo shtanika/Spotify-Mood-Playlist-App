@@ -16,6 +16,10 @@ const Navbar = () => {
     setImageError(true);
   };
 
+  const handleSignOut = () => {
+    signOut({ callbackUrl: "/" });
+  }
+
   return (
     <nav className="fixed top-0 left-0 w-full z-50 bg-transparent backdrop-blur-md text-black">
       <div className="flex justify-between items-center w-full py-3 px-8">
@@ -43,7 +47,7 @@ const Navbar = () => {
                 </span>
               </Link>
               <button
-                onClick={() => signOut()}
+                onClick={() => handleSignOut()}
                 className="text-black text-sm sm:text-base hover:text-gray-600"
               >
                 Sign Out
