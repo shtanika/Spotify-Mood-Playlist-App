@@ -44,25 +44,25 @@ const Navbar = () => {
 
   return (
     <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/20 border-b border-white/30">
-      <div className="flex justify-between items-center w-full py-3 px-8">
+      <div className="flex justify-between items-center w-full py-3 px-6 sm:px-8 md:px-12 lg:px-24 max-w-10xl mx-auto">
         {/* Logo & Title */}
         <Link href="/home" className="flex items-center gap-3 cursor-pointer">
-          <Image src={logo} alt="Logo" width={40} height={40} />
-          <span className="text-2xl font-bold" style={{ fontFamily: 'cursive' }}>Moodify</span>
+          <Image src={logo} alt="Logo" width={30} height={30} />
+          <span className="text-3xl font-bold font-clash">Moodify</span>
         </Link>
 
         {/* Navigation Links */}
         <div className="flex items-center gap-6">
-          <Link href="/home" className="text-black hover:text-gray-600 transition-colors">
+          <Link href="/home" className="text-black hover:text-gray-600 transition-colors font-bold">
             Home
           </Link>
-          <Link href="/create" className="text-black hover:text-gray-600 transition-colors">
+          <Link href="/create" className="text-black hover:text-gray-600 transition-colors font-bold">
             Create
           </Link>
 
           {/* Show Library Link if signed in */}
           {session && (
-            <Link href="/library" className="text-black hover:text-gray-600 transition-colors">
+            <Link href="/library" className="text-black hover:text-gray-600 transition-colors font-bold">
               Library
             </Link>
           )}

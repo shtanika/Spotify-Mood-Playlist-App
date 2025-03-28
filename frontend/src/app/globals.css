@@ -5,8 +5,15 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-inter);
+  --font-clash: var(--font-clash-display);
+}
+
+/* Add font family utilities */
+@layer utilities {
+  .font-clash {
+    font-family: var(--font-clash);
+  }
 }
 
 :root {
@@ -125,6 +132,7 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-family: var(--font-sans);
   }
 }
 
