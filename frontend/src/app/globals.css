@@ -153,6 +153,42 @@
   }
 }
 
+@layer components {
+  .glass-container {
+    @apply bg-white/35 
+           rounded-[20px] 
+           py-12        
+           px-8
+           sm:p-6
+           shadow-lg 
+           backdrop-blur-md 
+           border 
+           border-white/20 
+           text-center
+           max-w-3xl
+           w-full
+           mx-auto
+           space-y-4;
+  }
+
+  .glass-title {
+    @apply text-4xl 
+           sm:text-6xl
+           font-bold 
+           text-black
+           leading-tight;
+  }
+
+  .glass-subtitle {
+    @apply text-lg
+           sm:text-xl 
+           text-gray-800 
+           max-w-lg 
+           mx-auto 
+           opacity-90;
+  }
+}
+
 @keyframes gradientShift {
   0% {
     background-position: 0% 50%;
@@ -168,15 +204,14 @@
 
 /* button */
 .btn {
-  margin: 100px;
-  padding: 15px 40px;
+  padding: 15px 40px;  /* Remove margin: 100px */
   border: none; 
   outline: none;
-  color: #333; /* Black text */
+  color: #333;
   cursor: pointer;
   position: relative;
   z-index: 0;
-  border-radius: 20px; /* Rounded edges */
+  border-radius: 20px;
 }
 
 .btn::after {

@@ -43,9 +43,8 @@ const Navbar = () => {
 
 
   return (
-    <nav className="fixed top-0 left-0 w-full z-50 bg-transparent backdrop-blur-md text-black">
-	<div className="flex justify-between items-center w-full py-3 px-8">
-	    
+    <nav className="fixed top-0 left-0 w-full z-50 backdrop-blur-md bg-white/20 border-b border-white/30">
+      <div className="flex justify-between items-center w-full py-3 px-8">
         {/* Logo & Title */}
         <Link href="/home" className="flex items-center gap-3 cursor-pointer">
           <Image src={logo} alt="Logo" width={40} height={40} />
@@ -54,20 +53,20 @@ const Navbar = () => {
 
         {/* Navigation Links */}
         <div className="flex items-center gap-6">
-          <Link href="/home" className="text-black text-sm sm:text-base hover:text-gray-600">
+          <Link href="/home" className="text-black hover:text-gray-600 transition-colors">
             Home
           </Link>
-          <Link href="/create" className="text-black text-sm sm:text-base hover:text-gray-600">
+          <Link href="/create" className="text-black hover:text-gray-600 transition-colors">
             Create
           </Link>
 
-	    {/* Show Library Link if signed in */}
+          {/* Show Library Link if signed in */}
           {session && (
-            <Link href="/library" className="text-black text-sm sm:text-base hover:text-gray-600">
+            <Link href="/library" className="text-black hover:text-gray-600 transition-colors">
               Library
             </Link>
           )}
-	    
+          
           {/* Signed In: Show User Icon, Profile Link, and Sign Out Button */}
           {session ? (
 
@@ -86,7 +85,7 @@ const Navbar = () => {
                   <FaUserCircle size={28} className="text-black" />
                 )}
 
-		</button>
+              </button>
               {dropdownOpen && (
                 <div className="absolute right-0 mt-2 w-30 bg-white rounded-md shadow-lg py-1 z-10">
                   <Link
