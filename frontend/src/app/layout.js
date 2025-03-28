@@ -27,10 +27,10 @@ export default function RootLayout({ children }) {
       >
           <AuthProvider>
           <Navbar />
-          <div className="bg-pastel-gradient min-h-screen">
-          <main className="flex-grow">{children}</main>
+          <div className="bg-gradient-animate min-h-screen">
+            <main className="flex-grow">{children}</main>
           </div>
-	        <Footer />
+          <Footer />
         </AuthProvider>
       </body>
     </html>
