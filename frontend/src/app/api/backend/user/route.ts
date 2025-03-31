@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 
-// Define the base URL for your backend API
+// Define the base URL for the backend API
 const BACKEND_API_URL = process.env.BACKEND_API_URL as string;
 
 // GET: Fetch user data
