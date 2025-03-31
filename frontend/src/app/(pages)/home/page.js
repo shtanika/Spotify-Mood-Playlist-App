@@ -9,12 +9,12 @@ export default function Home() {
   return (
     <div className="flex flex-col items-center justify-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
       
-      {/* large black rectangle main section*/}
+      {/* main section with glass effect */}
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1 }}
-        className="bg-black text-white rounded-2xl p-10 w-full max-w-5xl flex flex-col sm:flex-row justify-between items-start gap-8 mt-[-30px]"
+        className="glass-container w-full max-w-5xl flex flex-col sm:flex-row justify-between items-start gap-8 mt-[-30px]"
       >
         {/* three gray smaller sections */}
         {[
@@ -22,9 +22,12 @@ export default function Home() {
           { title: "Enter a prompt", text: "Let us know how you are feeling!" },
           { title: "Generate your playlist", text: "Create the perfect playlist based on your mood and listening history!" }
         ].map(({ title, text }, index) => (
-          <div key={index} className="bg-gray-700 rounded-xl p-6 flex-1 text-center min-h-[150px] flex flex-col">
-            <h3 className="text-xl font-bold">{title}</h3>
-            <p className="text-base mt-2 text-gray-300">{text}</p>
+          <div 
+            key={index} 
+            className="glass-card flex-1 text-center min-h-[150px] flex flex-col justify-center p-6"
+          >
+            <h3 className="text-xl font-bold text-black">{title}</h3>
+            <p className="text-base mt-2 text-gray-700">{text}</p>
           </div>
         ))}
       </motion.div>
@@ -35,7 +38,7 @@ export default function Home() {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 1, delay: 0.5 }}
-        className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-lg sm:text-xl h-10 sm:h-12 px-6 sm:px-8 mt-16"
+        className="btn"
       >
         <span className="flex items-center justify-center">
           CREATE MY CUSTOM PLAYLIST
