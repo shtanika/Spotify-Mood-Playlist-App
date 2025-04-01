@@ -1,11 +1,11 @@
 from flask import jsonify, request
 from flask_restx import Resource, fields
-from src.models import Prompt
+from src.models import Prompt, User
 from src.extensions import db
 
 def init_prompt_routes(api):
     prompt_model = api.model('Prompt', {
-        'user_id': fields.String(required=True, description='User ID'),
+        'spotify_id': fields.String(required=True, description='Spotify ID of the user'),
         'mood': fields.String(required=True, description='Mood for the playlist'),
         'additional_notes': fields.String(description='Additional notes for playlist generation')
     })
@@ -61,8 +61,13 @@ def init_prompt_routes(api):
         def post(self):
             data = request.get_json()
             
+            # Get user by spotify_id
+            user = User.query.filter_by(spotify_id=data['spotify_id']).first()
+            if not user:
+                return {'error': 'User not found'}, 404
+            
             new_prompt = Prompt(
-                user_id=data['user_id'],
+                user_id=user.id,  # Use the user's UUID
                 mood=data['mood'],
                 additional_notes=data.get('additional_notes')
             )

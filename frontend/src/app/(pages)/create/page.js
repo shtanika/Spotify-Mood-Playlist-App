@@ -62,19 +62,11 @@ const CreatePlaylist = () => {
 
       // Store prompt in database
       if (session?.spotifyId) {
-        // First get user data to get UUID
-        const userResponse = await fetch(`/api/backend/user?spotify_id=${session.spotifyId}`);
-        if (!userResponse.ok) {
-          throw new Error("Failed to fetch user data");
-        }
-        const userData = await userResponse.json();
-
-        // Create prompt using user's UUID
         await fetch('/api/backend/prompt', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            user_id: userData.id,
+            spotify_id: session.spotifyId,
             mood: input,
             additional_notes: null
           }),
