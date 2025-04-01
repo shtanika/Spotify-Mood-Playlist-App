@@ -1,9 +1,10 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Wand2 } from "lucide-react"; // Import the magic wand icon
+import { User, Wand2 } from "lucide-react"; // Import the magic wand icon
+import { useSession } from "next-auth/react";
 
 const CreatePlaylist = () => {
   const router = useRouter();
@@ -12,6 +13,19 @@ const CreatePlaylist = () => {
   const [error, setError] = useState(null);
   const [showHistory, setShowHistory] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
+  const {data: session, status} = useSession();
+
+
+  useEffect(() => {
+      console.log("Session Status:", session);
+      console.log("Session:", session);
+      if (status === "loading") return;
+      if (status === "authenticated") {
+        console.log("Authenticated");
+        console.log("Access Token:", session.accessToken);
+        console.log("Spotify Id:", session.spotifyId);      
+      }
+  }, [session, status]);
 
   //examples of previous prompts (static for now)
   const promptHistory = [
@@ -32,6 +46,7 @@ const CreatePlaylist = () => {
     
     setIsGenerating(true);
     try {
+      // Get playlist description from Gemini
       const response = await fetch("/api/gemini", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -43,8 +58,30 @@ const CreatePlaylist = () => {
       }
 
       const data = await response.json();
-      setPlaylistDescription(data.playlistDescription); //store the playlist description
-      setError(null); //clear previous errors
+      setPlaylistDescription(data.playlistDescription);
+
+      // Store prompt in database
+      if (session?.spotifyId) {
+        // First get user data to get UUID
+        const userResponse = await fetch(`/api/backend/user?spotify_id=${session.spotifyId}`);
+        if (!userResponse.ok) {
+          throw new Error("Failed to fetch user data");
+        }
+        const userData = await userResponse.json();
+
+        // Create prompt using user's UUID
+        await fetch('/api/backend/prompt', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            user_id: userData.id,
+            mood: input,
+            additional_notes: null
+          }),
+        });
+      }
+
+      setError(null);
     } catch (error) {
       console.error("API Error:", error);
       setError(error.message); //display error
