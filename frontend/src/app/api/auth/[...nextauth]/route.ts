@@ -20,6 +20,7 @@ interface ExtendedJWT extends JWT {
     accessToken?: string;
     refreshToken?: string;
     accessTokenExpires?: number; // store token expiration time
+    spotifyId?: string; // store spotify user's id
 }
 
 // can add more scopes later
@@ -46,6 +47,18 @@ const authOptions:  NextAuthOptions = {
                 (token as ExtendedJWT).accessToken = account.access_token;
                 (token as ExtendedJWT).refreshToken = account.refresh_token;
                 (token as ExtendedJWT).accessTokenExpires = Date.now() + account.expires_in * 1000;
+            
+                // get spotify user id
+                const response = await fetch('https://api.spotify.com/v1/me', {
+                    headers: {
+                        Authorization: `Bearer ${account.access_token}`
+                    },
+                });
+
+                const data = await response.json();
+                if (response.ok && data.id) {
+                    (token as ExtendedJWT).spotifyId = data.id; // store spotify user id in the token
+                }
             }
             // if access token is not expired, return existing token
             if (Date.now() < (token as ExtendedJWT).accessTokenExpires!){
@@ -54,9 +67,14 @@ const authOptions:  NextAuthOptions = {
             // if access token is expired, refresh token
             return refreshAccessToken(token as ExtendedJWT);
         },
+        
         async session({ session, token }) {
             if ((token as ExtendedJWT).accessToken){
                 session.accessToken = (token as ExtendedJWT).accessToken;
+            }
+            // add spotify user id to session
+            if((token as ExtendedJWT).spotifyId) {
+                session.spotifyId = (token as ExtendedJWT).spotifyId;
             }
             return session;
         },

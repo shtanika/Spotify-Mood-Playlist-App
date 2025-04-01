@@ -38,7 +38,8 @@ const Profile = () => {
     if (status === "loading") return;
     if (status === "authenticated") {
       console.log("Authenticated");
-      console.log("Access Token:", session.accessToken);     
+      console.log("Access Token:", session.accessToken);
+      console.log("Spotify Id:", session.spotifyId);      
     }
     if(session?.accessToken){
       const fetchUserData = async () => {
