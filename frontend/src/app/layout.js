@@ -1,17 +1,23 @@
-import { Geist, Geist_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
+import localFont from 'next/font/local';
 import "./globals.css";
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer';
 import AuthProvider from "@/components/AuthProvider";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const inter = Inter({
   subsets: ["latin"],
+  variable: "--font-inter",
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
-  subsets: ["latin"],
+const clashDisplay = localFont({
+  src: [
+    {
+      path: '../../public/fonts/ClashDisplay-Variable.woff2',
+      style: 'normal',
+    },
+  ],
+  variable: '--font-clash-display',
 });
 
 export const metadata = {
@@ -21,16 +27,14 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-          <AuthProvider>
+    <html lang="en" className={`${inter.variable} ${clashDisplay.variable}`}>
+      <body>
+        <AuthProvider>
           <Navbar />
-          <div className="bg-pastel-gradient min-h-screen">
-          <main className="flex-grow">{children}</main>
+          <div className="bg-gradient-animate min-h-screen">
+            <main className="flex-grow">{children}</main>
           </div>
-	        <Footer />
+          <Footer />
         </AuthProvider>
       </body>
     </html>
