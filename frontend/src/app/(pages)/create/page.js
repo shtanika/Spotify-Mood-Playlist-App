@@ -56,6 +56,7 @@ const CreatePlaylist = () => {
 
   const handleKeyPress = (e) => {
     if (e.key === 'Enter') {
+      e.preventDefault(); // Prevent default form submission behavior
       handleSubmit();
     }
   };
@@ -81,6 +82,7 @@ const CreatePlaylist = () => {
             placeholder="Upbeat but sad..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
+            onKeyDown={handleKeyPress}
             onFocus={() => setShowHistory(true)}
             onBlur={() => setTimeout(() => setShowHistory(false), 200)}
             className="w-full p-4 pr-12 glass-card text-black placeholder-gray-600 focus:outline-none"
