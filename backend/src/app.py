@@ -1,10 +1,10 @@
 from flask import Flask
-from models import db
-from routes import init_routes
+from src.extensions import db
+from src.routes import init_routes
 
 def create_app():
     app = Flask(__name__)
-    app.config.from_object('config.Config')
+    app.config.from_object('src.config.Config')
 
     # Initialize extensions
     db.init_app(app)

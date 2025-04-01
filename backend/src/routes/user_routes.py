@@ -1,10 +1,9 @@
 from flask import jsonify, request
-from flask_restx import Api, Resource, fields
-from models import db, User
+from flask_restx import Resource, fields
+from src.models import User
+from src.extensions import db
 
-def init_routes(app):
-    api = Api(app, title="User API", description="API for managing users")
-
+def init_user_routes(api):
     user_model = api.model('User', {
         'spotify_id': fields.String(required=True, description='Spotify ID of the user'),
         'email': fields.String(description='Email of the user'),
@@ -12,21 +11,15 @@ def init_routes(app):
         'profile_image': fields.String(description='Profile image URL of the user')
     })
 
-    @app.route('/')
-    def hello():
-        return "Hello, World!"
-
     @api.route('/get_user/<spotify_id>')
     class GetUser(Resource):
         @api.doc(description="Get a user by their Spotify ID.")
         @api.response(200, 'User found')
         @api.response(404, 'User not found')
-        @api.response(500, 'Internal server error')
         def get(self, spotify_id):
             user = User.query.filter_by(spotify_id=spotify_id).first()
             if not user:
                 return {'error': 'User not found'}, 404
-
             return {
                 'id': str(user.id),
                 'spotify_id': user.spotify_id,
@@ -88,5 +81,3 @@ def init_routes(app):
             except Exception as e:
                 db.session.rollback()
                 return {'error': str(e)}, 500
-
-    return api
