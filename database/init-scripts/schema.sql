@@ -25,9 +25,9 @@ CREATE TABLE playlists (
 );
 
 CREATE TABLE playlist_tracks (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     playlist_id UUID REFERENCES playlists(id) ON DELETE CASCADE,
     spotify_track_id TEXT NOT NULL,
     track_name TEXT NOT NULL,
-    artist_name TEXT NOT NULL
+    artist_name TEXT NOT NULL,
+    PRIMARY KEY (playlist_id, spotify_track_id)
 );

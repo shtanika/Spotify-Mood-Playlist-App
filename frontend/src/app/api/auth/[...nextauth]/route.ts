@@ -31,7 +31,33 @@ const scope = 'user-read-private user-read-email user-library-read user-top-read
 // Spotify authorization URL, uses scope as a parameter
 const authorizationUrl = `https://accounts.spotify.com/authorize?scope=${scope}`;
 
-const authOptions:  NextAuthOptions = {
+// Add function to sync user with backend
+async function syncUserWithBackend(userData: any) {
+    const BACKEND_API_URL = process.env.BACKEND_API_URL;
+    
+    try {
+        const response = await fetch(`${BACKEND_API_URL}/create_user`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                spotify_id: userData.id,
+                email: userData.email,
+                display_name: userData.display_name || userData.name,
+                profile_image: userData.image || userData.picture
+            }),
+        });
+
+        if (!response.ok) {
+            console.error('Failed to sync user with backend:', await response.text());
+        }
+    } catch (error) {
+        console.error('Error syncing user with backend:', error);
+    }
+}
+
+const authOptions: NextAuthOptions = {
     providers: [
         SpotifyProvider({
             clientId: process.env.SPOTIFY_CLIENT_ID || "",
@@ -39,9 +65,29 @@ const authOptions:  NextAuthOptions = {
             authorization: authorizationUrl
         }),
     ],
-    // gives authorize code and access token
     callbacks: {
-        // uses JWT, json web token, for role verification and user permissons
+        async signIn({ user, account }) {
+            if (account?.provider === 'spotify') {
+                // Get additional Spotify user data
+                const response = await fetch('https://api.spotify.com/v1/me', {
+                    headers: {
+                        Authorization: `Bearer ${account.access_token}`,
+                    },
+                });
+                
+                if (response.ok) {
+                    const spotifyData = await response.json();
+                    // Sync user data with backend
+                    await syncUserWithBackend({
+                        id: spotifyData.id,
+                        email: spotifyData.email,
+                        display_name: spotifyData.display_name,
+                        image: spotifyData.images?.[0]?.url
+                    });
+                }
+            }
+            return true;
+        },
         async jwt({ token, account }) {
             if (account) {
                 (token as ExtendedJWT).accessToken = account.access_token;
@@ -60,16 +106,14 @@ const authOptions:  NextAuthOptions = {
                     (token as ExtendedJWT).spotifyId = data.id; // store spotify user id in the token
                 }
             }
-            // if access token is not expired, return existing token
-            if (Date.now() < (token as ExtendedJWT).accessTokenExpires!){
+            if (Date.now() < (token as ExtendedJWT).accessTokenExpires!) {
                 return token;
             }
-            // if access token is expired, refresh token
             return refreshAccessToken(token as ExtendedJWT);
         },
         
         async session({ session, token }) {
-            if ((token as ExtendedJWT).accessToken){
+            if ((token as ExtendedJWT).accessToken) {
                 session.accessToken = (token as ExtendedJWT).accessToken;
             }
             // add spotify user id to session
