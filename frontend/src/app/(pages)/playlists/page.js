@@ -5,14 +5,25 @@ import { motion } from "framer-motion";
 import { Bookmark, PlayCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 
+const formatDuration = (ms) => { //convert from ms
+  const minutes = Math.floor(ms / 60000);
+  const seconds = ((ms % 60000) / 1000).toFixed(0);
+  return `${minutes}:${seconds.padStart(2, "0")}`;
+};
+
 const PlaylistView = () => {
   const { data: session, status } = useSession();
   const [playlist, setPlaylist] = useState(null);
 
   useEffect(() => {
+    console.log("Session Status:", status);
+    console.log("Access Token:", session?.accessToken ? "Available" : "Not Available");
+
     if (status === "authenticated" && session?.accessToken) {
+      console.log("Fetching playlist data...");
       const fetchPlaylistData = async () => {
         try {
+          console.log("Fetching user playlists...");
           const userPlaylistsResponse = await fetch(
             `/api/spotify/getUserPlaylists?accessToken=${session.accessToken}`
           );
@@ -26,12 +37,16 @@ const PlaylistView = () => {
             return;
           }
 
+          console.log("User playlists response OK");
           const userPlaylistsData = await userPlaylistsResponse.json();
+          console.log("User playlists data:", userPlaylistsData);
 
-          if (userPlaylistsData.items && userPlaylistsData.items.length > 0) {
-            const mostRecentPlaylist = userPlaylistsData.items[0];
+          if (userPlaylistsData && userPlaylistsData.length > 0) {
+            const mostRecentPlaylist = userPlaylistsData[0];
+            console.log("Most recent playlist:", mostRecentPlaylist);
+            console.log("Fetching all playlist tracks...");
             const playlistTracksResponse = await fetch(
-              `/api/spotify/getPlaylistTracks?accessToken=${session.accessToken}&playlistId=${mostRecentPlaylist.id}`
+              `/api/spotify/getPlaylistTracks?accessToken=${session.accessToken}&playlistID=${mostRecentPlaylist.id}&limit=100`
             );
 
             if (!playlistTracksResponse.ok) {
@@ -43,18 +58,30 @@ const PlaylistView = () => {
               return;
             }
 
+            console.log("Playlist tracks response OK");
             const playlistTracksData = await playlistTracksResponse.json();
+            console.log("Playlist tracks data:", playlistTracksData);
 
-            const songs = playlistTracksData.items.map((item) => ({
-              title: item.track.name,
-              artist: item.track.artists.map((artist) => artist.name).join(", "),
-              albumArt: item.track.album.images[0]?.url || "/placeholder.jpg",
+            const songs = playlistTracksData.map((item) => ({
+              title: item.name,
+              artist: item.artists.map((artist) => artist.name).join(", "),
+              albumArt: item.album.images[0]?.url || "/placeholder.jpg",
+              duration: formatDuration(item.duration_ms),
+              spotifyUrl: item.external_urls.spotify,
             }));
 
+            console.log("Processed songs:", songs);
             setPlaylist({
               name: mostRecentPlaylist.name,
               songs: songs,
             });
+            console.log("Playlist state updated:", {
+              name: mostRecentPlaylist.name,
+              songs: songs,
+            });
+	      
+          } else {
+            console.log("No playlists found for the user.");
           }
         } catch (error) {
           console.error("Error fetching playlist data:", error);
@@ -74,7 +101,7 @@ const PlaylistView = () => {
   }
 
   return (
-    <div className="flex flex-col items-center min-h-screen px-6 sm:px-16 pt-32 font-[family-name:var(--font-geist-sans)]">
+    <div className="flex flex-col items-center min-h-screen px-6 sm:px-16 pt-32 font-[family-name:var(--font-geist-sans)] pb-20">
       {/* header playlist title */}
       <div className="w-full max-w-2xl flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">{playlist.name}</h1>
@@ -91,7 +118,7 @@ const PlaylistView = () => {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
-            className="flex items-center p-4 bg-black text-white rounded-2xl shadow-md border border-gray-700"
+            className="flex items-center p-4 bg-white/30 text-black rounded-2xl shadow-md border border-gray-900/20" // Updated background and border
           >
             {/* album/single art */}
             <div className="w-16 h-16 bg-gray-700 rounded-lg flex-shrink-0">
@@ -103,15 +130,18 @@ const PlaylistView = () => {
             </div>
 
             {/* song details */}
-            <div className="ml-4 flex flex-col">
+            <div className="ml-4 flex-1 flex flex-col">
               <span className="font-semibold">{song.title}</span>
-              <span className="text-gray-400 text-sm">{song.artist}</span>
+              <span className="text-gray-800 text-sm">{song.artist}</span>
             </div>
 
-            {/* play button ??? placeholder */}
-            <button className="ml-auto">
-              <PlayCircle className="w-8 h-8 text-gray-400 hover:text-white transition" />
-            </button>
+            {/* song duration */}
+            <span className="text-gray-700 text-sm mr-4">{song.duration}</span>
+
+            {/* play button */}
+            <a href={song.spotifyUrl} target="_blank" rel="noopener noreferrer" className="ml-auto">
+              <PlayCircle className="w-8 h-8 text-gray-800 hover:text-white transition" />
+            </a>
           </motion.div>
         ))}
       </div>
