@@ -1,11 +1,15 @@
 import { NextResponse } from 'next/server';
-import { getServerSession } from 'next-auth/react';
+import { getToken } from 'next-auth/jwt';
+
 
 export async function middleware(req){
-    const session = await getServerSession({ req });
-    console.log("Session inside middleware: ", session);
-        // if no session exists, redirect to home page
-    if (!session){
+    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
+    
+    //console.log("Session inside middleware: ", token);
+    
+    // if no session exists, redirect to home page
+    if (!token){
+        console.log("No session found.");
         return NextResponse.redirect(new URL('/', req.url));
     }
     return NextResponse.next();
@@ -20,11 +24,16 @@ export const config = {
         '/library',
         '/playlist',
         '/create',
-        '/profile
+        '/profile'
     ]
 };
 
 */
 export const config = {
-    matcher: []
+    matcher: [
+        '/library',
+        '/playlist',
+        '/create',
+        '/profile'
+    ]
 };
