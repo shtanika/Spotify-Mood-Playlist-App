@@ -66,7 +66,7 @@ export default function Library() {
                     {playlist.tracks.total} {playlist.tracks.total === 1 ? "song" : "songs"}
                   </p>
                   <Link
-		href={index === 0 ? "/playlists" : `/playlist-view/${playlist.id}`}
+		href={`/playlists?playlistId=${playlist.id}`}
 		className="text-blue-500 text-sm hover:underline flex items-center mt-2 group"
 		    >
 		    View Playlist

@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Bookmark, PlayCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 const formatDuration = (ms) => { //convert from ms
   const minutes = Math.floor(ms / 60000);
@@ -14,39 +15,68 @@ const formatDuration = (ms) => { //convert from ms
 const PlaylistView = () => {
   const { data: session, status } = useSession();
   const [playlist, setPlaylist] = useState(null);
+  const searchParams = useSearchParams();
+  const playlistId = searchParams.get("playlistId");
 
   useEffect(() => {
     console.log("Session Status:", status);
     console.log("Access Token:", session?.accessToken ? "Available" : "Not Available");
+    console.log("Playlist ID from URL:", playlistId);
 
     if (status === "authenticated" && session?.accessToken) {
       console.log("Fetching playlist data...");
       const fetchPlaylistData = async () => {
         try {
-          console.log("Fetching user playlists...");
-          const userPlaylistsResponse = await fetch(
-            `/api/spotify/getUserPlaylists?accessToken=${session.accessToken}`
-          );
+          let playlistDetails;
 
-          if (!userPlaylistsResponse.ok) {
-            console.error(
-              "Error fetching user playlists:",
-              userPlaylistsResponse.status,
-              await userPlaylistsResponse.text()
+          if (playlistId) {
+            console.log(`Workspaceing playlist details for ID: ${playlistId}`);
+            const playlistResponse = await fetch(
+              `/api/spotify/getPlaylist?accessToken=${session.accessToken}&playlistID=${playlistId}`
             );
-            return;
+
+            if (!playlistResponse.ok) {
+              console.error(
+                "Error fetching playlist details:",
+                playlistResponse.status,
+                await playlistResponse.text()
+              );
+              return;
+            }
+            playlistDetails = await playlistResponse.json();
+            console.log("Playlist details:", playlistDetails);
+          } else {
+            console.log("Fetching user playlists to get the most recent...");
+            const userPlaylistsResponse = await fetch(
+              `/api/spotify/getUserPlaylists?accessToken=${session.accessToken}`
+            );
+
+            if (!userPlaylistsResponse.ok) {
+              console.error(
+                "Error fetching user playlists:",
+                userPlaylistsResponse.status,
+                await userPlaylistsResponse.text()
+              );
+              return;
+            }
+
+            const userPlaylistsData = await userPlaylistsResponse.json();
+            console.log("User playlists data:", userPlaylistsData);
+
+            if (userPlaylistsData && userPlaylistsData.length > 0) {
+              playlistDetails = userPlaylistsData[0];
+              console.log("Most recent playlist details:", playlistDetails);
+            } else {
+              console.log("No playlists found for the user.");
+              setPlaylist(null); //handle no playlist found
+              return;
+            }
           }
 
-          console.log("User playlists response OK");
-          const userPlaylistsData = await userPlaylistsResponse.json();
-          console.log("User playlists data:", userPlaylistsData);
-
-          if (userPlaylistsData && userPlaylistsData.length > 0) {
-            const mostRecentPlaylist = userPlaylistsData[0];
-            console.log("Most recent playlist:", mostRecentPlaylist);
+          if (playlistDetails) {
             console.log("Fetching all playlist tracks...");
             const playlistTracksResponse = await fetch(
-              `/api/spotify/getPlaylistTracks?accessToken=${session.accessToken}&playlistID=${mostRecentPlaylist.id}&limit=100`
+              `/api/spotify/getPlaylistTracks?accessToken=${session.accessToken}&playlistID=${playlistDetails.id}&limit=100`
             );
 
             if (!playlistTracksResponse.ok) {
@@ -72,16 +102,13 @@ const PlaylistView = () => {
 
             console.log("Processed songs:", songs);
             setPlaylist({
-              name: mostRecentPlaylist.name,
+              name: playlistDetails.name,
               songs: songs,
             });
             console.log("Playlist state updated:", {
-              name: mostRecentPlaylist.name,
+              name: playlistDetails.name,
               songs: songs,
             });
-	      
-          } else {
-            console.log("No playlists found for the user.");
           }
         } catch (error) {
           console.error("Error fetching playlist data:", error);
@@ -90,7 +117,7 @@ const PlaylistView = () => {
 
       fetchPlaylistData();
     }
-  }, [session?.accessToken, status]);
+  }, [session?.accessToken, status, playlistId]);
 
   if (!playlist) {
     return (
