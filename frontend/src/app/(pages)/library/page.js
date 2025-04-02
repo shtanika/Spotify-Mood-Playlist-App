@@ -66,12 +66,12 @@ export default function Library() {
                     {playlist.tracks.total} {playlist.tracks.total === 1 ? "song" : "songs"}
                   </p>
                   <Link
-                    href={`/playlist-view/${playlist.id}`}
-                    className="text-blue-500 text-sm hover:underline flex items-center mt-2 group"
-                  >
-                    View Playlist 
-                    <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
-                  </Link>
+		href={index === 0 ? "/playlists" : `/playlist-view/${playlist.id}`}
+		className="text-blue-500 text-sm hover:underline flex items-center mt-2 group"
+		    >
+		    View Playlist
+		    <ChevronRight className="w-4 h-4 ml-1 transition-transform group-hover:translate-x-1" />
+		    </Link>
                 </div>
 
                 {playlist.images?.length > 0 ? (
