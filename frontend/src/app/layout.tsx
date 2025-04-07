@@ -4,6 +4,7 @@ import "./globals.css";
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer';
 import AuthProvider from "@/components/AuthProvider";
+import { ThemeProvider } from "next-themes";
 import React from 'react';
 
 interface LayoutProps {
@@ -32,14 +33,16 @@ export const metadata = {
 
 export default function RootLayout({ children }: LayoutProps) {
   return (
-    <html lang="en" className={`${inter.variable} ${clashDisplay.variable}`}>
+    <html lang="en" className={`${inter.variable} ${clashDisplay.variable}`} suppressHydrationWarning>
       <body>
         <AuthProvider>
-          <Navbar />
-          <div className="bg-gradient-animate min-h-screen">
-            <main className="flex-grow">{children}</main>
-          </div>
-          <Footer />
+          <ThemeProvider attribute="class" enableSystem defaultTheme="system">
+            <Navbar />
+            <div className="bg-gradient-animate min-h-screen">
+              <main className="flex-grow">{children}</main>
+            </div>
+            <Footer />
+          </ThemeProvider>
         </AuthProvider>
       </body>
     </html>

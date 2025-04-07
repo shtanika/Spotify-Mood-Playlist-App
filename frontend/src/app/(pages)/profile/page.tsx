@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
+import { useTheme } from "next-themes";
 //import { set } from "lodash";
 
 
@@ -47,6 +48,7 @@ const Profile = () => {
 
   // placeholder user data REPLACE LATER
   const {data: session, status} = useSession();
+  const { theme, setTheme } = useTheme();
   const [userData, setUserData] = useState<UserData | null>(null);
   const [topTracksData, setTopTracksData] = useState<TopTrack[] | null>(null);
   const [topArtistsData, setTopArtistsData] = useState<TopArtist[] | null>(null);
@@ -61,10 +63,16 @@ const Profile = () => {
   const [notifications, setNotifications] = useState(true);
   const [explicitFilter, setExplicitFilter] = useState(false);
 
+  // Initialize darkMode state based on theme
   useEffect(() => {
-	document.body.classList.toggle("bg-white", !darkMode);
-	document.body.classList.toggle("bg-black", darkMode);
-    }, [darkMode]);
+    setDarkMode(theme === "dark");
+  }, [theme]);
+
+  // Update theme when darkMode changes
+  const handleDarkModeChange = (checked: boolean) => {
+    setDarkMode(checked);
+    setTheme(checked ? "dark" : "light");
+  };
 
   useEffect(() => {
     console.log("Session Status:", session);
@@ -143,7 +151,7 @@ const Profile = () => {
           {/* username and join date */}
           <div>
             <h1 className="text-2xl font-bold">{userData? userData.display_name : "Loading. . ."}</h1>
-            <p className="text-gray-800 text-sm">User since {userSince}</p>
+            <p className="text-gray-800 text-sm dark:text-gray-100">User since {userSince}</p>
           </div>
         </div>
 
@@ -188,7 +196,7 @@ const Profile = () => {
             <span>Dark Mode</span>
             <Switch 
               checked={darkMode} 
-              onCheckedChange={setDarkMode} 
+              onCheckedChange={handleDarkModeChange} 
               className={`transition-colors ${darkMode ? "bg-blue-500 shadow-blue-500/50 shadow-md" : "bg-gray-600"}`}
               style={{ boxShadow: darkMode ? '0 0 10px 5px rgba(40, 100, 250, 0.6)' : 'none' }}
             />

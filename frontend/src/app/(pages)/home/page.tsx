@@ -26,8 +26,8 @@ export default function Home() {
             key={index} 
             className="glass-card flex-1 text-center min-h-[150px] flex flex-col justify-center p-6"
           >
-            <h3 className="text-xl font-bold text-black">{title}</h3>
-            <p className="text-base mt-2 text-gray-700">{text}</p>
+            <h3 className="text-xl font-bold text-black dark:text-white">{title}</h3>
+            <p className="text-base mt-2 text-gray-700 dark:text-gray-100">{text}</p>
           </div>
         ))}
       </motion.div>
