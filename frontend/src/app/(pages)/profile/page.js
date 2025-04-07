@@ -109,7 +109,7 @@ const Profile = () => {
           {/* username and join date */}
           <div>
             <h1 className="text-2xl font-bold">{userData? userData.display_name : "Loading. . ."}</h1>
-            <p className="text-gray-800 text-sm">User since {userSince}</p>
+            <p className="text-gray-800 text-sm dark:text-gray-100">User since {userSince}</p>
           </div>
         </div>
 

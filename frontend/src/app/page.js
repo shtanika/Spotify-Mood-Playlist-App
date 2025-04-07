@@ -4,6 +4,7 @@ import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Home() {
 
@@ -48,6 +49,8 @@ export default function Home() {
             <ChevronRight className="w-6 h-6 ml-2" />
           </span>
         </button>
+        {/* REMOVE WHEN DONE TESTING DARK MODE */}
+        <ThemeToggle></ThemeToggle>
       </main>
     </div>
   );
