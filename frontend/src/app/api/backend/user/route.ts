@@ -6,7 +6,7 @@ const BACKEND_API_URL = process.env.BACKEND_API_URL as string;
 // GET: Fetch user data
 export async function GET(req: Request) {
     const { searchParams } = new URL(req.url);
-    const spotifyId = searchParams.get('spotify_id'); // Assuming you pass `spotify_id` as a query parameter
+    const spotifyId = searchParams.get('spotify_id'); 
 
     if (!spotifyId) {
         return NextResponse.json({ error: 'spotify_id is required' }, { status: 400 });
