@@ -79,7 +79,6 @@
 
 @layer utilities {
   .bg-gradient-animate {
-    @apply dark:opacity-60;
     background: linear-gradient(
       135deg,
       #fceabb,
@@ -88,6 +87,20 @@
       #fcb69f,
       #a1c4fd,
       #c2e9fb
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 15s ease infinite;
+  }
+
+  .dark .bg-gradient-animate {
+    background: linear-gradient(
+      135deg,
+      #8b7b40,
+      #855e00,
+      #8b7b40,
+      #875e4f,
+      #4a5c7d,
+      #567380
     );
     background-size: 400% 400%;
     animation: gradientShift 15s ease infinite;

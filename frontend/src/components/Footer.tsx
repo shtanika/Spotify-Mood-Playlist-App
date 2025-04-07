@@ -27,7 +27,7 @@ const Footer = () => {
         </div>
 
         <div className="shrink-0">
-          <p className="text-black">&copy; {new Date().getFullYear()} Moodify</p>
+          <p className="text-black dark:text-white">&copy; {new Date().getFullYear()} Moodify</p>
         </div>
       </div>
     </footer>
