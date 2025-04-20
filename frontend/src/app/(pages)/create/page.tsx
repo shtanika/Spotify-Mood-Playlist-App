@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, KeyboardEvent } from "react";
 import { motion } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { User, Wand2 } from "lucide-react"; // Import the magic wand icon
@@ -10,7 +10,7 @@ const CreatePlaylist = () => {
   const router = useRouter();
   const [input, setInput] = useState("");
   const [playlistDescription, setPlaylistDescription] = useState(null); //store the playlist description
-  const [error, setError] = useState(null);
+  const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const {data: session, status} = useSession();
@@ -35,7 +35,7 @@ const CreatePlaylist = () => {
   ];
 
   //handles selection from prompt history
-  const handlePromptClick = (prompt) => {
+  const handlePromptClick = (prompt: string) => {
     setInput(prompt);
     setShowHistory(false); //hide prompt history after selection
   };
@@ -74,16 +74,23 @@ const CreatePlaylist = () => {
       }
 
       setError(null);
-    } catch (error) {
+    } catch (error: unknown) {
+      let message = '';
+      if (error instanceof Error){
+        message = error.message;
+      }
+      else{
+        message = String(error);
+      }
       console.error("API Error:", error);
-      setError(error.message); //display error
+      setError(message); //display error
       //router.push("/error"); // redirect to error page
     } finally {
       setIsGenerating(false);
     }
   };
 
-  const handleKeyPress = (e) => {
+  const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault(); // Prevent default form submission behavior
       handleSubmit();

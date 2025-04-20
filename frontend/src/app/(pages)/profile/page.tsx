@@ -6,18 +6,52 @@ import { motion } from "framer-motion";
 import { Switch } from "@/components/ui/switch";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
-import { set } from "lodash";
+//import { set } from "lodash";
 
+
+interface UserData {
+  display_name: string;
+  email: string;
+  explicit_content: {
+    filter_enabled: boolean;
+    filter_locked: boolean;
+  }
+  images: {url: string}[];
+}
+
+
+interface Playlist {
+  id: string;
+  name: string;
+  images: {url: string}[];
+  tracks: {total: number};
+}
+
+interface TopTrack {
+  id: string;
+  name: string;
+  artists: {name: string}[];
+  album: {
+    name: string;
+    images: {url: string};
+  };
+}
+
+interface TopArtist {
+  id: string;
+  name: string;
+  images: { url: string }[];
+}
 
 const Profile = () => {
 
   // placeholder user data REPLACE LATER
   const {data: session, status} = useSession();
-  const [userData, setUserData] = useState(null);
-  const [topTracksData, setTopTracksData] = useState(null);
-  const [topArtistsData, setTopArtistsData] = useState(null);
+  const [userData, setUserData] = useState<UserData | null>(null);
+  const [topTracksData, setTopTracksData] = useState<TopTrack[] | null>(null);
+  const [topArtistsData, setTopArtistsData] = useState<TopArtist[] | null>(null);
   const [savedTracksData, setSavedTracksData] = useState(null);
-  const [userPlaylistsData, setUserPlaylistData] = useState(null);
+  const [userPlaylistsData, setUserPlaylistData] = useState<Playlist[] | null>(null);
 
 
   const [username, setUsername] = useState("User12345");
@@ -101,7 +135,7 @@ const Profile = () => {
         <div className="flex items-center gap-6">
           {/* profile pic */}
           <img 
-            src={userData?.images[0]?.url || null}
+            src={userData?.images[0]?.url || undefined}
             alt="Profile Picture"
             className="w-25 h-25 object-cover rounded-full"
           />

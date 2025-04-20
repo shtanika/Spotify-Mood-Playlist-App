@@ -6,9 +6,16 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
 
+interface Playlist {
+  id: string;
+  name: string;
+  images: {url: string}[];
+  tracks: {total: number};
+}
+
 export default function Library() {
   const { data: session, status } = useSession();
-  const [playlists, setPlaylists] = useState([]);
+  const [playlists, setPlaylists] = useState<Playlist[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -29,6 +36,8 @@ export default function Library() {
       fetchPlaylists();
     }
   }, [session?.accessToken, status]);
+
+  
 
   return (
     <div className="flex flex-col items-center min-h-screen p-8 pb-20 gap-8 sm:p-20">
