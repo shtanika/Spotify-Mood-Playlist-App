@@ -33,6 +33,11 @@ def init_routes(app):
         'artist_name': fields.String(required=True, description='Name of the artist')
     })
 
+    recommendation_model = api.model('Recommendations', {
+        'prompt': fields.String(required=True, description='Prompt'),
+        'spotify_id': fields.String(required=True, description='Spotify ID of the user'),
+    })
+
     # User routes
     @api.route('/get_user/<spotify_id>')
     class GetUser(Resource):
@@ -257,4 +262,28 @@ def init_routes(app):
             db.session.commit()
             
             return {'message': 'Track added successfully'}, 201
+    
+    @api.route('/create_recs')
+    class CreateRecs(Resource):
+        @api.expect(recommendation_model, validate=True)
+        @api.doc(description="Generate recommendations from user prompt")
+        def post(self):
+            data = request.get_json()
+
+            # Get Spotify user data (top tracks and top artists)
+
+            # Send user data (JSON should incl genre for artists) and prompt to Gemini (should return seed_tracks, seed_artists, and seed_genres)
+
+            # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each)
+
+            # Get JSON of recommendation from RapidAPI using the LLM generated seeds
+
+            # Extract URI of songs 
+
+            # POST create playlist 
+
+            # POST add tracks
+
+            return {'playlist_id': ''}, 201
+    
     return api
