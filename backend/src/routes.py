@@ -277,13 +277,13 @@ def init_routes(app):
             seed_artists = ""
             seed_genres = ""
             track_uris = []
-            # Get Spotify user data (top tracks and top artists)
+            # Get Spotify user data (top tracks and top artists) JOSHUA
 
-            # Send user data (JSON should incl genre for artists) and prompt to Gemini (should return seed_tracks, seed_artists, and seed_genres)
+            # Send user data (JSON should incl genre for artists) and prompt to Gemini (should return seed_tracks, seed_artists, and seed_genres) AALEIA
 
-            # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each)
+            # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each) JOSHUA
 
-            # Get JSON of recommendation from RapidAPI using the LLM generated seeds
+            # Get JSON of recommendation from RapidAPI using the LLM generated seeds DONE
             RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
             url = "https://spotify23.p.rapidapi.com/recommendations/"
             querystring = {
@@ -302,14 +302,14 @@ def init_routes(app):
             response = requests.get(url, headers=headers, params=querystring)
             song_json = response.json()
             '''
-            # Extract URI of songs 
+            # Extract URI of songs DONE
             ## Change songs to song_json when running with real / not mock data
             for track in songs['tracks']:
                 track_uris.append(track['uri'])
 
-            # POST create playlist 
+            # POST create playlist TANIKA
 
-            # POST add tracks
+            # POST add tracks TANIKA
 
             return {'playlist_id': ''}, 201
     
