@@ -2,6 +2,10 @@ from flask import jsonify, request
 from flask_restx import Api, Resource, fields
 from src.models import User, Prompt, Playlist, PlaylistTrack
 from src.extensions import db
+from src.songs import songs
+import requests
+import os
+from dotenv import load_dotenv
 
 def init_routes(app):
     api = Api(app, title="API", description="API documentation")
@@ -31,6 +35,11 @@ def init_routes(app):
         'spotify_track_id': fields.String(required=True, description='Spotify Track ID'),
         'track_name': fields.String(required=True, description='Name of the track'),
         'artist_name': fields.String(required=True, description='Name of the artist')
+    })
+
+    recommendation_model = api.model('Recommendations', {
+        'prompt': fields.String(required=True, description='Prompt'),
+        'spotify_id': fields.String(required=True, description='Spotify ID of the user'),
     })
 
     # User routes
@@ -257,4 +266,51 @@ def init_routes(app):
             db.session.commit()
             
             return {'message': 'Track added successfully'}, 201
+    
+    @api.route('/create_recs')
+    class CreateRecs(Resource):
+        @api.expect(recommendation_model, validate=True)
+        @api.doc(description="Generate recommendations from user prompt")
+        def post(self):
+            data = request.get_json()
+            seed_tracks = ""
+            seed_artists = ""
+            seed_genres = ""
+            track_uris = []
+            # Get Spotify user data (top tracks and top artists)
+
+            # Send user data (JSON should incl genre for artists) and prompt to Gemini (should return seed_tracks, seed_artists, and seed_genres)
+
+            # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each)
+
+            # Get JSON of recommendation from RapidAPI using the LLM generated seeds
+            RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
+            url = "https://spotify23.p.rapidapi.com/recommendations/"
+            querystring = {
+                "limit": "20",
+                "seed_tracks": seed_tracks,
+                "seed_artists": seed_artists,
+                "seed_genres": seed_genres
+            }
+
+            headers = {
+                "x-rapidapi-host": "spotify23.p.rapidapi.com",
+                "x-rapidapi-key": RAPIDAPI_KEY
+            }
+
+            ''' Commented out to prevent running API; also add code for bad responses
+            response = requests.get(url, headers=headers, params=querystring)
+            song_json = response.json()
+            '''
+            # Extract URI of songs 
+            ## Change songs to song_json when running with real / not mock data
+            for track in songs['tracks']:
+                track_uris.append(track['uri'])
+
+            # POST create playlist 
+
+            # POST add tracks
+
+            return {'playlist_id': ''}, 201
+    
     return api
