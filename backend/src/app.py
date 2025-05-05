@@ -1,10 +1,13 @@
 from flask import Flask
+from flask_cors import CORS
 from src.extensions import db
 from src.routes import init_routes
 
 def create_app():
     app = Flask(__name__)
     app.config.from_object('src.config.Config')
+
+    CORS(app, origins=["http://localhost:3000"])
 
     # Initialize extensions
     db.init_app(app)
