@@ -14,16 +14,38 @@ const CreatePlaylist = () => {
   const [showHistory, setShowHistory] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const {data: session, status} = useSession();
+    
+  const [topTracks, setTopTracks] = useState([]);
+  const [topArtists, setTopArtists] = useState([]);
 
 
   useEffect(() => {
       console.log("Session Status:", session);
       console.log("Session:", session);
       if (status === "loading") return;
-      if (status === "authenticated") {
+      
+      if (status === "authenticated" && session.accessToken) {
+	  
         console.log("Authenticated");
         console.log("Access Token:", session.accessToken);
-        console.log("Spotify Id:", session.spotifyId);      
+        console.log("Spotify Id:", session.spotifyId);
+
+	const fetchSpotifyData = async () => {
+        try {
+          const [tracksResponse, artistsResponse] = await Promise.all([
+            fetch(`/api/spotify/topTracks?accessToken=${session.accessToken}`),
+            fetch(`/api/spotify/topArtists?accessToken=${session.accessToken}`)
+          ]);
+          const topTracksData = await tracksResponse.json();
+          const topArtistsData = await artistsResponse.json();
+          setTopTracks(topTracksData?.items || []);
+          setTopArtists(topArtistsData?.items || []);
+        } catch (error) {
+          console.error("Error fetching Spotify data:", error);
+        }
+      };
+      fetchSpotifyData();
+	  
       }
   }, [session, status]);
 
@@ -47,10 +69,14 @@ const CreatePlaylist = () => {
     setIsGenerating(true);
     try {
       // Get playlist description from Gemini
-      const response = await fetch("/api/gemini", {
+      const response = await fetch("/create_recs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mood: input }),
+        body: JSON.stringify({
+          mood: input,
+          topTracks: topTracks,
+          topArtists: topArtists,
+        }),
       });
 
       if (!response.ok) {
@@ -58,7 +84,8 @@ const CreatePlaylist = () => {
       }
 
       const data = await response.json();
-      setPlaylistDescription(data.playlistDescription);
+	
+      setPlaylistDescription(`Seeds:\n${JSON.stringify(data.seeds, null, 2)}\n\n Gemini Description:\n${data.description}`);
 
       // Store prompt in database
       if (session?.spotifyId) {
@@ -156,9 +183,9 @@ const CreatePlaylist = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="glass-card mt-8 p-6 text-center"
+            className="glass-card mt-8 p-6 text-left whitespace-pre-wrap font-mono text-sm"
           >
-            <p className="text-gray-800">{playlistDescription}</p>
+            {playlistDescription}
           </motion.div>
         )}
 

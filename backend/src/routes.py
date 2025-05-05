@@ -6,6 +6,9 @@ from src.songs import songs
 import requests
 import os
 from dotenv import load_dotenv
+from src.gemini import get_gemini_recommendation
+import json
+import re
 
 def init_routes(app):
     api = Api(app, title="API", description="API documentation")
@@ -280,6 +283,45 @@ def init_routes(app):
             # Get Spotify user data (top tracks and top artists) JOSHUA
 
             # Send user data (JSON should incl genre for artists) and prompt to Gemini (should return seed_tracks, seed_artists, and seed_genres) AALEIA
+            
+            #mock: replace with real call to get top_tracks and top_artists from DB or spotify user data
+            top_artists_json = json.dumps([
+                {"name": "Tate McRae", "genres": ["dance pop", "pop"], "popularity": 94},
+                {"name": "Bad Omens", "genres": ["metalcore"], "popularity": 75}
+            ])
+            top_tracks_json = json.dumps([
+                {"title": "She's All I Wanna Be", "artist": "Tate McRae"},
+                {"title": "Just Pretend", "artist": "Bad Omens"}
+            ])
+
+            gemini_raw = get_gemini_recommendation(data["prompt"], top_artists_json, top_tracks_json)
+
+            # parser
+            def extract_seeds(text):
+                seeds = {
+                    "seed_tracks": "",
+                    "seed_artists": "",
+                    "seed_genres": ""
+                }
+
+                for key in seeds.keys():
+                    match = re.search(rf'{key}:\s*"(.*?)"', text)
+                    if match:
+                        seeds[key] = match.group(1)
+                    else:
+                        # try multi-value
+                        match = re.search(rf'{key}:\s*((?:"[^"]+",\s*)*"[^"]+")', text)
+                        if match:
+                            seeds[key] = ", ".join([s.strip('" ') for s in match.group(1).split(",")])
+
+                return seeds
+
+            seeds = extract_seeds(gemini_raw)
+            seed_tracks = seeds["seed_tracks"]
+            seed_artists = seeds["seed_artists"]
+            seed_genres = seeds["seed_genres"]
+
+            
 
             # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each) JOSHUA
 
