@@ -4,6 +4,11 @@ import "./globals.css";
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer';
 import AuthProvider from "@/components/AuthProvider";
+import React from 'react';
+
+interface LayoutProps {
+  children: React.ReactNode;
+}
 
 const inter = Inter({
   subsets: ["latin"],
@@ -25,7 +30,7 @@ export const metadata = {
   description: "Create custom Spotify playlists",
 };
 
-export default function RootLayout({ children }) {
+export default function RootLayout({ children }: LayoutProps) {
   return (
     <html lang="en" className={`${inter.variable} ${clashDisplay.variable}`}>
       <body>

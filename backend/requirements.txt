@@ -4,3 +4,6 @@ flask_sqlalchemy
 psycopg2-binary
 python-dotenv
 flask_restx
+spotipy
+requests
+flask-cors
