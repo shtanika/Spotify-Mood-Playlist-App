@@ -1,4 +1,5 @@
 import os
+# TODO: google.generativeai is now deprecated; try to use google.genai instead
 import google.generativeai as genai
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))

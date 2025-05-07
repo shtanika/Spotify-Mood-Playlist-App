@@ -1,5 +1,3 @@
-// filepath: /frontend/src/lib/backendAPI.ts
-
 export interface User {
     spotify_id: string;
     email?: string;

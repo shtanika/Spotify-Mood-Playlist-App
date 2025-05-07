@@ -429,7 +429,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 230440,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "QMRY41600115"
       },
@@ -437,7 +437,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/6UtB0ezZwMneQIfLJ1Yzc1"
       },
       "id": "6UtB0ezZwMneQIfLJ1Yzc1",
-      "is_local": false,
+      "is_local": False,
       "name": "I've Been Meaning to Call",
       "popularity": 36,
       "preview_url": "https://p.scdn.co/mp3-preview/cd5512fefd012b5bbfe2ddc0aa8d925c64e25015?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -872,7 +872,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 194593,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "USSM11701150"
       },
@@ -880,7 +880,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/1g9rDqYo4h8JT6r4xDonbu"
       },
       "id": "1g9rDqYo4h8JT6r4xDonbu",
-      "is_local": false,
+      "is_local": False,
       "name": "Shoot Out the Lights",
       "popularity": 22,
       "preview_url": "https://p.scdn.co/mp3-preview/7dd58a7b3506bccad859194ed1254ec6aaabb465?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -1333,7 +1333,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 205440,
-      "explicit": true,
+      "explicit": True,
       "external_ids": {
         "isrc": "USUG12104631"
       },
@@ -1341,7 +1341,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/6Esm09YZlCd58xR08xT021"
       },
       "id": "6Esm09YZlCd58xR08xT021",
-      "is_local": false,
+      "is_local": False,
       "name": "Steal My Clothes (ft. Bea Miller) – LP Giobbi Remix",
       "popularity": 55,
       "preview_url": "https://p.scdn.co/mp3-preview/79529763e76e7d13a990b9c460515ab319437a30?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -1812,7 +1812,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 607842,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "CALC41000103"
       },
@@ -1820,7 +1820,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/7fjCjhCZdR0gSPVyv3DluQ"
       },
       "id": "7fjCjhCZdR0gSPVyv3DluQ",
-      "is_local": false,
+      "is_local": False,
       "name": "Tabula Rasa: I. Ludus",
       "popularity": 25,
       "preview_url": "https://p.scdn.co/mp3-preview/b1130c279ec83964d0dcdb976acc1c4914f11ff3?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -2264,7 +2264,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 352000,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "GBJAJ1400579"
       },
@@ -2272,7 +2272,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/4kRq5gxCuRVkALbjk0Cq3o"
       },
       "id": "4kRq5gxCuRVkALbjk0Cq3o",
-      "is_local": false,
+      "is_local": False,
       "name": "All In My Head - Gold Fields Remix",
       "popularity": 18,
       "preview_url": "https://p.scdn.co/mp3-preview/705eb9e4a157134f6df812a43e7b567477aa1a43?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -2716,7 +2716,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 287026,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "USUM71517372"
       },
@@ -2724,7 +2724,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/33kVqa42fdhgqmiwPvKoLh"
       },
       "id": "33kVqa42fdhgqmiwPvKoLh",
-      "is_local": false,
+      "is_local": False,
       "name": "Give It To The Moment - Cassian Remix",
       "popularity": 9,
       "preview_url": "https://p.scdn.co/mp3-preview/200c710c7baad53412899e8a0b3e68ffbe7b70ba?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -3159,7 +3159,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 248200,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "USMC19135287"
       },
@@ -3167,7 +3167,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/2ulBBx6YQ3qY3ci34RadtN"
       },
       "id": "2ulBBx6YQ3qY3ci34RadtN",
-      "is_local": false,
+      "is_local": False,
       "name": "She's In Love With The Boy - Single Version",
       "popularity": 71,
       "preview_url": "https://p.scdn.co/mp3-preview/92e8a812fdcc813697ebdb8a27bc8f7d8bbd9a34?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -3602,7 +3602,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 219552,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "USTT21700001"
       },
@@ -3610,7 +3610,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/1jICs7TEAcJ8Wv9Yev9hq7"
       },
       "id": "1jICs7TEAcJ8Wv9Yev9hq7",
-      "is_local": false,
+      "is_local": False,
       "name": "The Housefire",
       "popularity": 56,
       "preview_url": "https://p.scdn.co/mp3-preview/63196f544a5a6f84d5b05e5ba2851829b068e396?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -4045,7 +4045,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 197930,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "USG4X1500776"
       },
@@ -4053,7 +4053,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/1LM5zQv5pBKPyO7rm7Uz6U"
       },
       "id": "1LM5zQv5pBKPyO7rm7Uz6U",
-      "is_local": false,
+      "is_local": False,
       "name": "My Church",
       "popularity": 72,
       "preview_url": "https://p.scdn.co/mp3-preview/cf3844864a2e5d92b288fc8fd7fd9308e1a48c58?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -4486,7 +4486,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 144080,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "USRC11400590"
       },
@@ -4494,7 +4494,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/68vwmP8zjGCzGzPuDzYKsX"
       },
       "id": "68vwmP8zjGCzGzPuDzYKsX",
-      "is_local": false,
+      "is_local": False,
       "name": "Opulence",
       "popularity": 39,
       "preview_url": "https://p.scdn.co/mp3-preview/47f7432e6bb33a61ebf34a2193fa82b78e92a3a1?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -4930,7 +4930,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 285245,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "GBUM71400509"
       },
@@ -4938,7 +4938,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/1Q57C5ZQ1IVRSCjrHNAu9G"
       },
       "id": "1Q57C5ZQ1IVRSCjrHNAu9G",
-      "is_local": false,
+      "is_local": False,
       "name": "Better Places",
       "popularity": 17,
       "preview_url": "https://p.scdn.co/mp3-preview/6283d35004b100ec6b6eea2136458ada183293c6?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -5373,7 +5373,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 178772,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "QMHA31700001"
       },
@@ -5381,7 +5381,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/5uNkbV9FVJXPdhuCmtgg0M"
       },
       "id": "5uNkbV9FVJXPdhuCmtgg0M",
-      "is_local": false,
+      "is_local": False,
       "name": "What Guy Wouldn't",
       "popularity": 39,
       "preview_url": "https://p.scdn.co/mp3-preview/c7222e76d15fcbc8d59d9954c2240a920fce4f33?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -5465,7 +5465,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 229640,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "GBARL1400786"
       },
@@ -5473,7 +5473,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/3d6bQbiGNRmAx7PaXmJ34G"
       },
       "id": "3d6bQbiGNRmAx7PaXmJ34G",
-      "is_local": false,
+      "is_local": False,
       "name": "Cut Your Teeth - Kygo Radio Edit",
       "popularity": 22,
       "preview_url": "https://p.scdn.co/mp3-preview/3d7149b7d8c81b879df6aae64d7bafce4dcd693a?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -5907,7 +5907,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 202213,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "GBCEN1501213"
       },
@@ -5915,7 +5915,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/1qp0ptMXNg9hqLH8sk7cc2"
       },
       "id": "1qp0ptMXNg9hqLH8sk7cc2",
-      "is_local": false,
+      "is_local": False,
       "name": "Sweet Lovin' - Radio Edit",
       "popularity": 67,
       "preview_url": "https://p.scdn.co/mp3-preview/f91c3afcbe9d58def4eb5aa09df2b0db344a2cc1?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -6375,7 +6375,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 501506,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "FIFIN8800300"
       },
@@ -6383,7 +6383,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/5vWB9HbTnP0n6aXZpMqBiQ"
       },
       "id": "5vWB9HbTnP0n6aXZpMqBiQ",
-      "is_local": false,
+      "is_local": False,
       "name": "Sibelius: Finlandia, Op. 26",
       "popularity": 23,
       "preview_url": "https://p.scdn.co/mp3-preview/6d348de1f3b39a4f1c947486ddcb15c92e06702d?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -6818,7 +6818,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 209341,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "SEUM71400860"
       },
@@ -6826,7 +6826,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/3gFS9CKU70Wm7vAoA0O1uW"
       },
       "id": "3gFS9CKU70Wm7vAoA0O1uW",
-      "is_local": false,
+      "is_local": False,
       "name": "Hard Time",
       "popularity": 53,
       "preview_url": "https://p.scdn.co/mp3-preview/1c2c623e7738967b11c32e823d7f466a09662557?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -7233,7 +7233,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 200646,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "TCADK1745795"
       },
@@ -7241,7 +7241,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/0hTNq9RahZlUuLDoiGmSxS"
       },
       "id": "0hTNq9RahZlUuLDoiGmSxS",
-      "is_local": false,
+      "is_local": False,
       "name": "Summer Cool",
       "popularity": 44,
       "preview_url": "https://p.scdn.co/mp3-preview/818152c4a276b85b7fdd1d31a2d54048084ee493?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -7676,7 +7676,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 210258,
-      "explicit": true,
+      "explicit": True,
       "external_ids": {
         "isrc": "US5Z51400591"
       },
@@ -7684,7 +7684,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/0KghTfieEzsuB4KkPwxhei"
       },
       "id": "0KghTfieEzsuB4KkPwxhei",
-      "is_local": false,
+      "is_local": False,
       "name": "Chasing Time",
       "popularity": 37,
       "preview_url": "https://p.scdn.co/mp3-preview/29b84cee4dc4a96b31aebb4e03498f55513a68f5?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -7879,7 +7879,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 319362,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "DEAF71310596"
       },
@@ -7887,7 +7887,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/5AfBdUudSbL7S9AtkwfpXd"
       },
       "id": "5AfBdUudSbL7S9AtkwfpXd",
-      "is_local": false,
+      "is_local": False,
       "name": "From the Inside",
       "popularity": 23,
       "preview_url": "https://p.scdn.co/mp3-preview/22a4877efabd778b474ccc5796073bc98cee73dc?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -8338,7 +8338,7 @@ songs = {
       ],
       "disc_number": 1,
       "duration_ms": 349316,
-      "explicit": false,
+      "explicit": False,
       "external_ids": {
         "isrc": "GBUM72208517"
       },
@@ -8346,7 +8346,7 @@ songs = {
         "spotify": "https://open.spotify.com/track/4cAESz6WLbrrpTvR3Confo"
       },
       "id": "4cAESz6WLbrrpTvR3Confo",
-      "is_local": false,
+      "is_local": False,
       "name": "Call On Me (with Tove Lo) - SG's Dub Edit",
       "popularity": 36,
       "preview_url": "https://p.scdn.co/mp3-preview/13b93a8e4db0e8e0d8521bbfac6d090f2ef087f3?cid=d8a5ed958d274c2e8ee717e6a4b0971d",
@@ -8376,7 +8376,7 @@ songs = {
       "afterRelinkingSize": 313,
       "id": "classical",
       "type": "GENRE",
-      "href": null
+      "href": None
     },
     {
       "initialPoolSize": 999,
@@ -8384,7 +8384,7 @@ songs = {
       "afterRelinkingSize": 313,
       "id": "country",
       "type": "GENRE",
-      "href": null
+      "href": None
     }
   ]
 }
