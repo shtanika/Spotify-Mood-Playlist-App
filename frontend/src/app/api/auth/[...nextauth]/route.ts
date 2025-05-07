@@ -68,6 +68,21 @@ const authOptions: NextAuthOptions = {
     callbacks: {
         async signIn({ user, account }) {
             if (account?.provider === 'spotify') {
+                // Send token to the Backend
+                const sendToken_response = await fetch(`${process.env.BACKEND_API_URL}/api/spotify/access_token`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        access_token: account.access_token,
+                    }),
+                });
+
+                if (!sendToken_response.ok){
+                    console.error('Failed to send access token to backend');
+                }
+
                 // Get additional Spotify user data
                 const response = await fetch('https://api.spotify.com/v1/me', {
                     headers: {
@@ -104,6 +119,9 @@ const authOptions: NextAuthOptions = {
                 const data = await response.json();
                 if (response.ok && data.id) {
                     (token as ExtendedJWT).spotifyId = data.id; // store spotify user id in the token
+                    console.log("ID HERE: ", data.id)
+                } else {
+                    console.error("Failed to fetch Spotify user ID:", data); //error logging
                 }
             }
             if (Date.now() < (token as ExtendedJWT).accessTokenExpires!) {
@@ -147,6 +165,17 @@ async function refreshAccessToken(token: ExtendedJWT){
         if (!response.ok){
             throw refreshedToken;
         }
+
+        // Send refresh token to replace token in Backend
+        await fetch(`${process.env.BACKEND_API_URL}/api/spotify/access_token`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                access_token: refreshedToken.access_token,
+            }),
+        });
 
         return {
             ...token,

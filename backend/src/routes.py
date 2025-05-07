@@ -1,4 +1,4 @@
-from flask import jsonify, request, current_app
+from flask import jsonify, request, session, current_app
 from flask_restx import Api, Resource, fields
 from src.models import User, Prompt, Playlist, PlaylistTrack
 from src.extensions import db
@@ -9,6 +9,75 @@ from src.functions import extract_seeds, getRapidRecs, extractURI
 import json
 import re
 
+# Spotify helper functions
+
+# Get current user's top tracks and artists. Returns 20 tracks and 20 artists
+def get_spotify_top_data():
+    global access_token
+    if not access_token:
+        return None, {'error': 'Access token is not available'}, 400
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    top_tracks_response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers)
+    if top_tracks_response.status_code != 200:
+        return {'error': 'Failed to get top tracks'}, 500
+            
+    top_artists_response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers)
+    if top_artists_response.status_code != 200:
+        return {'error': 'Failed to get top artists'}, 500
+            
+    top_tracks = top_tracks_response.json()
+    top_artists = top_artists_response.json()
+
+    return {
+        'top_tracks': top_tracks,
+        'top_artists': top_artists
+    }, None
+
+import requests
+from urllib.parse import quote
+
+# Get spotify ids for each track in a list
+def get_spotify_ids_for_tracks(seed_tracks):
+    track_id_list = []
+    global access_token
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    for track in seed_tracks:
+        track_id = None
+        query = quote(track)
+        track_response = requests.get(f'https://api.spotify.com/v1/search?q={query}&type=track', headers=headers)
+
+        if track_response.status_code == 200 and 'tracks' in track_response.json():
+            if track_response.json()['tracks']['items']:
+                track_id = track_response.json()['tracks']['items'][0]['id']
+
+        if track_id:
+            track_id_list.append({'track': track, 'spotify_id': track_id})
+
+    return track_id_list
+
+# Get spotify ids for each artist in a list
+def get_spotify_ids_for_artists(seed_artists):
+    artists_id_list = []
+    global access_token
+    headers = {'Authorization': f'Bearer {access_token}'}
+
+    for artist in seed_artists:
+        artist_id = None
+        query = quote(artist)
+        artist_response = requests.get(f'https://api.spotify.com/v1/search?q={query}&type=artist', headers=headers)
+
+        if artist_response.status_code == 200 and 'artists' in artist_response.json():
+            if artist_response.json()['artists']['items']:
+                artist_id = artist_response.json()['artists']['items'][0]['id']
+
+        if artist_id:
+            artists_id_list.append({'artist': artist, 'spotify_id': artist_id})
+
+    return artists_id_list
+
+# End of Spotify helper functions
 
 def init_routes(app):
 
@@ -271,41 +340,177 @@ def init_routes(app):
             
             return {'message': 'Track added successfully'}, 201
     
+
+    # Spotify Web API endpoints, including fetching access token from frontend
+    # Route for the Spotify access token for Spotify functions in the backend
+    @api.route('/api/spotify/access_token', methods=['POST', 'GET'])
+    class SpotifyAccessToken(Resource):
+        def post(self):
+            # Saves access_token globally, when user signs in or token is refreshed.
+            global access_token
+            access_token = request.json.get('access_token')
+            if not access_token:
+                return {'error': 'Access token could not be stored'}, 400
+            return {'message': 'Access token stored successfully'}, 200
+        
+        def get(self):
+            # endpoint to get access token, may not need yet since access token is globally saved and frontend does not need it. 
+            global access_token
+            if access_token:
+                return {'access_token': access_token}
+            return {'error': 'Can not get access token'}, 400
+
+    # Route for top artist and top tracks, can be used in frontend. May structure future spotify endpoints like this, and replace frontend spotify api with these.
+    @api.route('/api/spotify/top')
+    class SpotifyTop(Resource):
+        def get(self):
+            # get access token for authorization
+            global access_token
+            if not access_token:
+                return {'error': 'Access token is missing'}, 400
+            headers = {'Authorization': f'Bearer {access_token}'}
+
+            # call spotify endpoints for top tracks and top artists
+            top_tracks_response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers)
+            if top_tracks_response.status_code != 200:
+                return {'error': 'Failed to get top tracks'}, 500
+            
+            top_artists_response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers)
+            if top_artists_response.status_code != 200:
+                return {'error': 'Failed to get top artists'}, 500
+            
+            top_tracks = top_tracks_response.json()
+            top_artists = top_artists_response.json()
+
+            return {
+                'top_tracks': top_tracks,
+                'top_artists': top_artists
+            }
+    # End of Spotify Web API endpoints, including fetching access token from frontend
+
     @api.route('/create_recs')
     class CreateRecs(Resource):
         @api.expect(recommendation_model, validate=True)
         @api.doc(description="Generate recommendations from user prompt")
         def post(self):
             data = request.get_json()
-            seed_tracks = ""
-            seed_artists = ""
-            seed_genres = ""
-            track_uris = []
-            # Get Spotify user data (top tracks and top artists) JOSHUA
+            prompt = request.json.get('prompt')
+            spotify_id = request.json.get('spotify_id')
 
+            if not prompt or not spotify_id:
+                return {'error': 'Missing prompt or Spotify ID'}, 400 
+
+            track_uris = []
+
+            # Get Spotify user data (top tracks and top artists) JOSHUA
+            top_data, error = get_spotify_top_data()
+            print(f"TOP DATA: {top_data}")
+            if error:
+                return error, 500
+            if top_data:
+                top_tracks = top_data['top_tracks']
+                top_artists = top_data['top_artists']
+            
             # Send user data (JSON should incl genre for artists) and prompt to Gemini (should return seed_tracks, seed_artists, and seed_genres) AALEIA
             
-            #mock: replace with real call to get top_tracks and top_artists from DB or spotify user data
-            top_artists_json = json.dumps([
-                {"name": "Tate McRae", "genres": ["dance pop", "pop"], "popularity": 94},
-                {"name": "Bad Omens", "genres": ["metalcore"], "popularity": 75}
-            ])
-            top_tracks_json = json.dumps([
-                {"title": "She's All I Wanna Be", "artist": "Tate McRae"},
-                {"title": "Just Pretend", "artist": "Bad Omens"}
-            ])
+            top_artists_formatted = [{
+                "name": artist["name"],
+                "genres": artist.get("genres", []),
+                "popularity": artist.get("popularity", 0)
+            } for artist in top_artists.get("items", [])]
+
+            top_tracks_formatted = [{
+                "title": track["name"],
+                "artist": track["artists"][0]["name"] if track.get("artists") else ""
+            } for track in top_tracks.get("items", [])]
+
+            top_artists_json = json.dumps(top_artists_formatted)
+            top_tracks_json = json.dumps(top_tracks_formatted)
 
             gemini_raw = get_gemini_recommendation(data["prompt"], top_artists_json, top_tracks_json)
 
-            current_app.logger.info(f"gemini response: {gemini_raw}")
-            
-            seeds = extract_seeds(gemini_raw)
+            # parser
+            def extract_seeds(text):
+                seeds = {
+                    "seed_tracks": [],
+                    "seed_artists": [],
+                    "seed_genres": []
+                }
+
+                for key, value_list in seeds.items():
+                    pattern = rf'{key}:\s*(.*)'
+                    match = re.search(pattern, text)
+                    if match:
+                        raw_values = match.group(1).strip()
+                        #split by comma and remove quotes and whitespace
+                        values = [v.strip().strip('"') for v in raw_values.split(',')]
+                        #filter out empty strings that might be from extra commas
+                        seeds[key] = [v for v in values if v]
+                    else:
+                        seeds[key] = []
 
             current_app.logger.info(f"final extracted seeds: '{seeds}")
 
             seed_tracks = seeds["seed_tracks"]
             seed_artists = seeds["seed_artists"]
             seed_genres = seeds["seed_genres"]
+
+            #for now just return the raw Gemini response
+            #return {'seeds': seeds, 'gemini_response': gemini_raw}, 200
+
+            track_data = []
+            artist_data = []
+
+            # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each) JOSHUA
+            if seed_tracks:
+                track_data = get_spotify_ids_for_tracks(seed_tracks)
+            seed_track_ids = [item['spotify_id'] for item in track_data if item.get('spotify_id')]
+            seed_tracks_param = ",".join(seed_track_ids[:5]) # limit to 5
+
+            if seed_artists:
+                artist_data = get_spotify_ids_for_artists(seed_artists)
+            seed_artist_ids = [item['spotify_id'] for item in artist_data if item.get('spotify_id')]
+            seed_artists_param = ",".join(seed_artist_ids[:5]) #limit to 5
+
+            seed_genres_param = ",".join(seed_genres[:5]) #limit to 5 genres
+
+
+            # Get JSON of recommendation from RapidAPI using the LLM generated seeds DONE
+            RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
+            url = "https://spotify23.p.rapidapi.com/recommendations/"
+            querystring = {
+                "limit": "20",
+                "seed_tracks": seed_tracks_param,
+                "seed_artists": seed_artists_param,
+                "seed_genres": seed_genres_param
+            }
+
+            headers = {
+                "x-rapidapi-host": "spotify23.p.rapidapi.com",
+                "x-rapidapi-key": RAPIDAPI_KEY
+            }
+
+            # Commented out to prevent running API; also add code for bad responses
+            try:
+                response = requests.get(url, headers=headers, params=querystring)
+                #song_json = response.json()
+                response.raise_for_status()
+                recommended_tracks_data = response.json()
+            except requests.exceptions.RequestException as e:
+                return {'error': f'Error fetching recommendations from RapidAPI: {e}'}, 500
+            
+            return {
+                'seeds': seeds,
+                'gemini_response': gemini_raw,
+                'track_spotify_ids': track_data,
+                'artist_spotify_ids': artist_data,
+                'recommendations': recommended_tracks_data
+            }, 200
+
+            # Extract URI of songs DONE
+            ## Change songs to song_json when running with real / not mock data
+            for track in songs['tracks']:
+                track_uris.append(track['uri'])
 
             # REDO or build upon previous Gemini call. Make it so that Gemini creates a playlist of 
             # 20 songs from the seeds or just from prompt + user data AALEIA

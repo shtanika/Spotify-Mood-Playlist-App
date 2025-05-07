@@ -6,7 +6,29 @@ import { Bookmark, PlayCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
-const formatDuration = (ms) => { //convert from ms
+
+interface Playlist {
+  name: string;
+  songs: Song[];
+}
+
+interface Song {
+  title: string;
+  artist: string;
+  albumArt: string;
+  duration: string;
+  spotifyUrl: string;
+}
+
+interface SpotifyTrack {
+  name: string;
+  duration_ms: number;
+  external_urls: {spotify: string};
+  artists: {name: string}[];
+  album: {images: {url:string}[]};
+}
+
+const formatDuration = (ms: number) => { //convert from ms
   const minutes = Math.floor(ms / 60000);
   const seconds = ((ms % 60000) / 1000).toFixed(0);
   return `${minutes}:${seconds.padStart(2, "0")}`;
@@ -14,7 +36,7 @@ const formatDuration = (ms) => { //convert from ms
 
 const PlaylistView = () => {
   const { data: session, status } = useSession();
-  const [playlist, setPlaylist] = useState(null);
+  const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const searchParams = useSearchParams();
   const playlistId = searchParams.get("playlistId");
 
@@ -92,7 +114,7 @@ const PlaylistView = () => {
             const playlistTracksData = await playlistTracksResponse.json();
             console.log("Playlist tracks data:", playlistTracksData);
 
-            const songs = playlistTracksData.map((item) => ({
+            const songs = playlistTracksData.map((item: SpotifyTrack) => ({
               title: item.name,
               artist: item.artists.map((artist) => artist.name).join(", "),
               albumArt: item.album.images[0]?.url || "/placeholder.jpg",
