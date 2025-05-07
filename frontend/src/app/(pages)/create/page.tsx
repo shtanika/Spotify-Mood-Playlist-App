@@ -18,19 +18,41 @@ const CreatePlaylist = () => {
   const [topTracks, setTopTracks] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
 
+  const [spotifyIdFromSession, setSpotifyIdFromSession] = useState<string | undefined>(undefined);
+
 
   useEffect(() => {
       console.log("Session Status:", session);
       console.log("Session:", session);
+
       if (status === "loading") return;
       
-      if (status === "authenticated" && session.accessToken) {
-	  
+      if (status === "authenticated" && session?.accessToken && session?.user) {
         console.log("Authenticated");
         console.log("Access Token:", session.accessToken);
         console.log("Spotify Id:", session.spotifyId);
+        console.log("Session:", session)
 
-	const fetchSpotifyData = async () => {
+      //send access token to backend
+    const sendAccessToken = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/spotify/access_token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token: session.accessToken }),
+        });
+        if (response.ok) {
+          console.log("Access token sent to backend successfully");
+        } else {
+          console.error("Failed to send access token to backend");
+        }
+      } catch (error) {
+        console.error("Error sending access token:", error);
+      }
+    };
+    sendAccessToken();
+
+	  const fetchSpotifyData = async () => {
         try {
           const [tracksResponse, artistsResponse] = await Promise.all([
             fetch(`/api/spotify/topTracks?accessToken=${session.accessToken}`),
@@ -68,15 +90,11 @@ const CreatePlaylist = () => {
     
     setIsGenerating(true);
     try {
-      // Get playlist description from Gemini
-      const response = await fetch("/create_recs", {
+      //get playlist description from Gemini
+      const response = await fetch("http://localhost:5000/create_recs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          mood: input,
-          topTracks: topTracks,
-          topArtists: topArtists,
-        }),
+        body: JSON.stringify({ prompt: input, spotify_id: session?.spotifyId }),
       });
 
       if (!response.ok) {
@@ -84,12 +102,17 @@ const CreatePlaylist = () => {
       }
 
       const data = await response.json();
-	
-      setPlaylistDescription(`Seeds:\n${JSON.stringify(data.seeds, null, 2)}\n\n Gemini Description:\n${data.description}`);
+      console.log("Backend response:", data);
+
+      setPlaylistDescription(`Seeds:\n${JSON.stringify(data.seeds, null, 2)}\n\n` +
+                               `Gemini Response:\n${data.gemini_response}\n\n` +
+                               `Track Spotify IDs:\n${JSON.stringify(data.track_spotify_ids, null, 2)}\n\n` +
+                               `Artist Spotify IDs:\n${JSON.stringify(data.artist_spotify_ids, null, 2)}\n\n` +
+                               `Recommendations:\n${JSON.stringify(data.recommendations, null, 2)}`);
 
       // Store prompt in database
       if (session?.spotifyId) {
-        await fetch('/api/backend/prompt', {
+        await fetch("http://localhost:5000/create_prompt", {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -119,7 +142,7 @@ const CreatePlaylist = () => {
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent default form submission behavior
+      e.preventDefault();
       handleSubmit();
     }
   };

@@ -119,6 +119,9 @@ const authOptions: NextAuthOptions = {
                 const data = await response.json();
                 if (response.ok && data.id) {
                     (token as ExtendedJWT).spotifyId = data.id; // store spotify user id in the token
+                    console.log("ID HERE: ", data.id)
+                } else {
+                    console.error("Failed to fetch Spotify user ID:", data); //error logging
                 }
             }
             if (Date.now() < (token as ExtendedJWT).accessTokenExpires!) {

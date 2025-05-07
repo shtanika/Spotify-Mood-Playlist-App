@@ -7,3 +7,4 @@ flask_restx
 spotipy
 requests
 flask-cors
+google-generativeai

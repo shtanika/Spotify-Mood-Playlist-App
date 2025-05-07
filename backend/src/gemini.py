@@ -14,11 +14,14 @@ User's Top Artists:
 User's Top Tracks:
 {tracks_json}
 
-Please return only the following fields, formatted as comma-separated values inside quotation marks, using the format shown below:
+Return only the following fields, formatted as comma-separated values inside quotation marks, using the format shown below:
 
+e.g.
 seed_tracks: "Track1", "Track2", "Track3"
 seed_artists: "Artist1", "Artist2"
-seed_genres: "Genre1", "Genre2"
+
+e.g.
+seed_genres: "Genre1", "Genre2", "Genre3", "Genre4", "Genre5"
 
 Instructions:
 - You must choose only one of the following combinations:
