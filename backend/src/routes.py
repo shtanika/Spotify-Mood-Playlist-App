@@ -1,16 +1,17 @@
-from flask import jsonify, request
+from flask import jsonify, request, current_app
 from flask_restx import Api, Resource, fields
 from src.models import User, Prompt, Playlist, PlaylistTrack
 from src.extensions import db
 from src.songs import songs
-import requests
-import os
 from dotenv import load_dotenv
 from src.gemini import get_gemini_recommendation
+from src.functions import extract_seeds, getRapidRecs, extractURI
 import json
 import re
 
+
 def init_routes(app):
+
     api = Api(app, title="API", description="API documentation")
 
     # API models
@@ -296,63 +297,26 @@ def init_routes(app):
 
             gemini_raw = get_gemini_recommendation(data["prompt"], top_artists_json, top_tracks_json)
 
-            # parser
-            def extract_seeds(text):
-                seeds = {
-                    "seed_tracks": "",
-                    "seed_artists": "",
-                    "seed_genres": ""
-                }
-
-                for key in seeds.keys():
-                    match = re.search(rf'{key}:\s*"(.*?)"', text)
-                    if match:
-                        seeds[key] = match.group(1)
-                    else:
-                        # try multi-value
-                        match = re.search(rf'{key}:\s*((?:"[^"]+",\s*)*"[^"]+")', text)
-                        if match:
-                            seeds[key] = ", ".join([s.strip('" ') for s in match.group(1).split(",")])
-
-                return seeds
-
+            current_app.logger.info(f"gemini response: {gemini_raw}")
+            
             seeds = extract_seeds(gemini_raw)
+
+            current_app.logger.info(f"final extracted seeds: '{seeds}")
+
             seed_tracks = seeds["seed_tracks"]
             seed_artists = seeds["seed_artists"]
             seed_genres = seeds["seed_genres"]
 
+            # REDO or build upon previous Gemini call. Make it so that Gemini creates a playlist of 
+            # 20 songs from the seeds or just from prompt + user data AALEIA
             
-
-            # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each) JOSHUA
-
-            # Get JSON of recommendation from RapidAPI using the LLM generated seeds DONE
-            RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
-            url = "https://spotify23.p.rapidapi.com/recommendations/"
-            querystring = {
-                "limit": "20",
-                "seed_tracks": seed_tracks,
-                "seed_artists": seed_artists,
-                "seed_genres": seed_genres
-            }
-
-            headers = {
-                "x-rapidapi-host": "spotify23.p.rapidapi.com",
-                "x-rapidapi-key": RAPIDAPI_KEY
-            }
-
-            ''' Commented out to prevent running API; also add code for bad responses
-            response = requests.get(url, headers=headers, params=querystring)
-            song_json = response.json()
-            '''
-            # Extract URI of songs DONE
-            ## Change songs to song_json when running with real / not mock data
-            for track in songs['tracks']:
-                track_uris.append(track['uri'])
+            # For each track Gemini gives, use Spotify search endpoint to get uri for the track JOSHUA
 
             # POST create playlist TANIKA
 
             # POST add tracks TANIKA
 
-            return {'playlist_id': ''}, 201
+            #return {'playlist_id': ''}, 201
+            return {'gemini': f'{gemini_raw}\n seeds: {seeds}\n track_uris: {track_uris}'}, 201
     
     return api
