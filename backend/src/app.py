@@ -1,8 +1,15 @@
 from flask import Flask
 from src.extensions import db
 from src.routes import init_routes
+from logging.config import dictConfig
+from src.logger import init_logger
 
 def create_app():
+
+    # Configure logger 
+     
+    init_logger()
+
     app = Flask(__name__)
     app.config.from_object('src.config.Config')
 
