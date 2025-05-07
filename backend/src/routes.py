@@ -1,12 +1,11 @@
-from flask import jsonify, request, session
+from flask import jsonify, request, session, current_app
 from flask_restx import Api, Resource, fields
 from src.models import User, Prompt, Playlist, PlaylistTrack
 from src.extensions import db
 from src.songs import songs
-import requests
-import os
 from dotenv import load_dotenv
 from src.gemini import get_gemini_recommendation
+from src.functions import extract_seeds, getRapidRecs, extractURI
 import json
 import re
 
@@ -81,6 +80,7 @@ def get_spotify_ids_for_artists(seed_artists):
 # End of Spotify helper functions
 
 def init_routes(app):
+
     api = Api(app, title="API", description="API documentation")
 
     # API models
@@ -449,9 +449,8 @@ def init_routes(app):
                     else:
                         seeds[key] = []
 
-                return seeds
+            current_app.logger.info(f"final extracted seeds: '{seeds}")
 
-            seeds = extract_seeds(gemini_raw)
             seed_tracks = seeds["seed_tracks"]
             seed_artists = seeds["seed_artists"]
             seed_genres = seeds["seed_genres"]
@@ -513,10 +512,16 @@ def init_routes(app):
             for track in songs['tracks']:
                 track_uris.append(track['uri'])
 
+            # REDO or build upon previous Gemini call. Make it so that Gemini creates a playlist of 
+            # 20 songs from the seeds or just from prompt + user data AALEIA
+            
+            # For each track Gemini gives, use Spotify search endpoint to get uri for the track JOSHUA
+
             # POST create playlist TANIKA
 
             # POST add tracks TANIKA
 
-            return {'playlist_id': ''}, 201
+            #return {'playlist_id': ''}, 201
+            return {'gemini': f'{gemini_raw}\n seeds: {seeds}\n track_uris: {track_uris}'}, 201
     
     return api
