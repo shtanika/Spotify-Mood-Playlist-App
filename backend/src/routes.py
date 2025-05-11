@@ -6,82 +6,27 @@ from src.songs import songs
 from dotenv import load_dotenv
 from src.gemini import get_gemini_recommendation
 from src.functions import extract_seeds, getRapidRecs, extractURI
+from src.spotify_helpers import (
+    get_spotify_top_data, 
+    get_spotify_ids_for_tracks, 
+    get_spotify_ids_for_artists,
+    create_spotify_playlist,
+    add_tracks_spotify_playlist,
+    get_user_id,
+    get_track_uri,
+    get_spotify_saved_tracks
+    )
+from src.spotify_api import init_spotify_api
 import json
 import re
 
-# Spotify helper functions
-
-# Get current user's top tracks and artists. Returns 20 tracks and 20 artists
-def get_spotify_top_data():
-    global access_token
-    if not access_token:
-        return None, {'error': 'Access token is not available'}, 400
-    headers = {'Authorization': f'Bearer {access_token}'}
-
-    top_tracks_response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers)
-    if top_tracks_response.status_code != 200:
-        return {'error': 'Failed to get top tracks'}, 500
-            
-    top_artists_response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers)
-    if top_artists_response.status_code != 200:
-        return {'error': 'Failed to get top artists'}, 500
-            
-    top_tracks = top_tracks_response.json()
-    top_artists = top_artists_response.json()
-
-    return {
-        'top_tracks': top_tracks,
-        'top_artists': top_artists
-    }, None
-
-import requests
-from urllib.parse import quote
-
-# Get spotify ids for each track in a list
-def get_spotify_ids_for_tracks(seed_tracks):
-    track_id_list = []
-    global access_token
-    headers = {'Authorization': f'Bearer {access_token}'}
-
-    for track in seed_tracks:
-        track_id = None
-        query = quote(track)
-        track_response = requests.get(f'https://api.spotify.com/v1/search?q={query}&type=track', headers=headers)
-
-        if track_response.status_code == 200 and 'tracks' in track_response.json():
-            if track_response.json()['tracks']['items']:
-                track_id = track_response.json()['tracks']['items'][0]['id']
-
-        if track_id:
-            track_id_list.append({'track': track, 'spotify_id': track_id})
-
-    return track_id_list
-
-# Get spotify ids for each artist in a list
-def get_spotify_ids_for_artists(seed_artists):
-    artists_id_list = []
-    global access_token
-    headers = {'Authorization': f'Bearer {access_token}'}
-
-    for artist in seed_artists:
-        artist_id = None
-        query = quote(artist)
-        artist_response = requests.get(f'https://api.spotify.com/v1/search?q={query}&type=artist', headers=headers)
-
-        if artist_response.status_code == 200 and 'artists' in artist_response.json():
-            if artist_response.json()['artists']['items']:
-                artist_id = artist_response.json()['artists']['items'][0]['id']
-
-        if artist_id:
-            artists_id_list.append({'artist': artist, 'spotify_id': artist_id})
-
-    return artists_id_list
-
-# End of Spotify helper functions
 
 def init_routes(app):
 
     api = Api(app, title="API", description="API documentation")
+
+    # include Spotify Web API routes
+    api = init_spotify_api(api)
 
     # API models
     user_model = api.model('User', {
@@ -341,52 +286,7 @@ def init_routes(app):
             return {'message': 'Track added successfully'}, 201
     
 
-    # Spotify Web API endpoints, including fetching access token from frontend
-    # Route for the Spotify access token for Spotify functions in the backend
-    @api.route('/api/spotify/access_token', methods=['POST', 'GET'])
-    class SpotifyAccessToken(Resource):
-        def post(self):
-            # Saves access_token globally, when user signs in or token is refreshed.
-            global access_token
-            access_token = request.json.get('access_token')
-            if not access_token:
-                return {'error': 'Access token could not be stored'}, 400
-            return {'message': 'Access token stored successfully'}, 200
-        
-        def get(self):
-            # endpoint to get access token, may not need yet since access token is globally saved and frontend does not need it. 
-            global access_token
-            if access_token:
-                return {'access_token': access_token}
-            return {'error': 'Can not get access token'}, 400
-
-    # Route for top artist and top tracks, can be used in frontend. May structure future spotify endpoints like this, and replace frontend spotify api with these.
-    @api.route('/api/spotify/top')
-    class SpotifyTop(Resource):
-        def get(self):
-            # get access token for authorization
-            global access_token
-            if not access_token:
-                return {'error': 'Access token is missing'}, 400
-            headers = {'Authorization': f'Bearer {access_token}'}
-
-            # call spotify endpoints for top tracks and top artists
-            top_tracks_response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers)
-            if top_tracks_response.status_code != 200:
-                return {'error': 'Failed to get top tracks'}, 500
-            
-            top_artists_response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers)
-            if top_artists_response.status_code != 200:
-                return {'error': 'Failed to get top artists'}, 500
-            
-            top_tracks = top_tracks_response.json()
-            top_artists = top_artists_response.json()
-
-            return {
-                'top_tracks': top_tracks,
-                'top_artists': top_artists
-            }
-    # End of Spotify Web API endpoints, including fetching access token from frontend
+    
 
     @api.route('/create_recs')
     class CreateRecs(Resource):
@@ -396,6 +296,7 @@ def init_routes(app):
             data = request.get_json()
             prompt = request.json.get('prompt')
             spotify_id = request.json.get('spotify_id')
+            access_token = request.json.get('access_token')
 
             if not prompt or not spotify_id:
                 return {'error': 'Missing prompt or Spotify ID'}, 400 
@@ -403,7 +304,7 @@ def init_routes(app):
             track_uris = []
 
             # Get Spotify user data (top tracks and top artists) JOSHUA
-            top_data, error = get_spotify_top_data()
+            top_data, error = get_spotify_top_data(access_token)
             print(f"TOP DATA: {top_data}")
             if error:
                 return error, 500
@@ -463,12 +364,12 @@ def init_routes(app):
 
             # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each) JOSHUA
             if seed_tracks:
-                track_data = get_spotify_ids_for_tracks(seed_tracks)
+                track_data = get_spotify_ids_for_tracks(access_token, seed_tracks)
             seed_track_ids = [item['spotify_id'] for item in track_data if item.get('spotify_id')]
             seed_tracks_param = ",".join(seed_track_ids[:5]) # limit to 5
 
             if seed_artists:
-                artist_data = get_spotify_ids_for_artists(seed_artists)
+                artist_data = get_spotify_ids_for_artists(access_token, seed_artists)
             seed_artist_ids = [item['spotify_id'] for item in artist_data if item.get('spotify_id')]
             seed_artists_param = ",".join(seed_artist_ids[:5]) #limit to 5
 
@@ -523,5 +424,48 @@ def init_routes(app):
 
             #return {'playlist_id': ''}, 201
             return {'gemini': f'{gemini_raw}\n seeds: {seeds}\n track_uris: {track_uris}'}, 201
+        
+        # Route to test creating playlist, and adding user's saved tracks
+        @api.route('/api/spotify/create_playlist_test', methods=['POST'])
+        class SpotifyCreatePlaylistTest(Resource):
+            def post(self):
+                # Request access token 
+                access_token = request.args.get('access_token')
+                if not access_token:
+                    return {'error': 'Access token is missing'}, 400
+                
+                # get user id
+                user_id, error = get_user_id(access_token)
+                if error:
+                    return error, 400
+
+                # get saved tracks and their track ids
+                saved_tracks_data, error = get_spotify_saved_tracks(access_token, limit=10)
+                if error:
+                    return error, 400
+                track_ids = [track['track']['id'] for track in saved_tracks_data['items']]
+
+                # convert track ids to track_uris
+                track_uris = []
+                for track_id in track_ids:
+                    track_uri, error = get_track_uri(access_token, track_id)
+                    if error:
+                        return error, 400
+                    track_uris.append(track_uri)
+                
+                # create playlist
+                playlist_name = 'Create Playlist Test'
+                playlist_description = 'Testing creating a playlist and adding saved tracks'
+                playlist_data, error = create_spotify_playlist(access_token, user_id, playlist_name, track_uris)
+                if error:
+                    return error, 400
+                playlist_id = playlist_data['id']
+
+                # add tracks to playlist
+                _, error = add_tracks_spotify_playlist(access_token, playlist_id, track_uris)
+                if error:
+                    return error, 400
+
+                return {'message': 'Test playlist created and saved tracks added successfully', 'playlist_id': playlist_id}, 201
     
     return api

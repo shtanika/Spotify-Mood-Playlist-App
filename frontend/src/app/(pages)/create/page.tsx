@@ -6,10 +6,12 @@ import { useRouter } from "next/navigation";
 import { User, Wand2 } from "lucide-react"; // Import the magic wand icon
 import { useSession } from "next-auth/react";
 
+import { ChevronRight } from "lucide-react";
+
 const CreatePlaylist = () => {
   const router = useRouter();
   const [input, setInput] = useState("");
-  const [playlistDescription, setPlaylistDescription] = useState(null); //store the playlist description
+  const [playlistDescription, setPlaylistDescription] = useState<string |null>(null); //store the playlist description
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
@@ -84,6 +86,35 @@ const CreatePlaylist = () => {
     setShowHistory(false); //hide prompt history after selection
   };
 
+
+  // Handler for creating playlist test
+  const handleCreatePlaylist = async () => {
+    if (!session || !session.accessToken){
+      setError("No access token found");
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/spotify/create_playlist_test?access_token=${session.accessToken}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create playlist"); 
+      }
+      const data = await response.json();
+      console.log("Playlist created: ", data);
+
+    } catch (error: any) {
+      setError(`Error creating playlist ${error.message}`);
+    }
+  }
+
+
   //handles request for playlist generation
   const handleSubmit = async () => {
     if (!input.trim()) return;
@@ -94,7 +125,7 @@ const CreatePlaylist = () => {
       const response = await fetch("http://localhost:5000/create_recs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ prompt: input, spotify_id: session?.spotifyId }),
+        body: JSON.stringify({ prompt: input, spotify_id: session?.spotifyId, access_token: session?.accessToken }),
       });
 
       if (!response.ok) {
@@ -230,6 +261,22 @@ const CreatePlaylist = () => {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Create Playlist button for testing */}
+      <motion.button
+        onClick={() => handleCreatePlaylist()}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.5 }}
+        className="btn"
+      >
+        <span className="flex items-center justify-center">
+          CREATE MY CUSTOM PLAYLIST
+          <ChevronRight className="w-6 h-6 ml-2" />
+        </span>
+      </motion.button>
+  
+
     </div>
   );
 };
