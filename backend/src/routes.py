@@ -41,6 +41,12 @@ def init_routes(app):
         'spotify_id': fields.String(required=True, description='Spotify ID of the user'),
     })
 
+    # Test route 
+    @api.route('/test')
+    class Test(Resource):
+        def get(self):
+            return {'message': 'Hello World!'}
+
     # User routes
     @api.route('/get_user/<spotify_id>')
     class GetUser(Resource):
