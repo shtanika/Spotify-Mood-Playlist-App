@@ -2,10 +2,8 @@ from flask import jsonify, request, session, current_app
 from flask_restx import Api, Resource, fields
 from src.models import User, Prompt, Playlist, PlaylistTrack
 from src.extensions import db
-from src.songs import songs
 from dotenv import load_dotenv
 from src.gemini import get_gemini_recommendation
-from src.functions import extract_seeds, getRapidRecs, extractURI
 from src.spotify_helpers import (
     get_spotify_top_data, 
     get_spotify_ids_for_tracks, 

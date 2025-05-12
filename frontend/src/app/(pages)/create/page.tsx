@@ -262,7 +262,7 @@ const CreatePlaylist = () => {
         )}
       </motion.div>
 
-      {/* Create Playlist button for testing */}
+      {/* Create Playlist button for testing
       <motion.button
         onClick={() => handleCreatePlaylist()}
         initial={{ opacity: 0, y: 20 }}
@@ -275,6 +275,9 @@ const CreatePlaylist = () => {
           <ChevronRight className="w-6 h-6 ml-2" />
         </span>
       </motion.button>
+      
+      */}
+      
   
 
     </div>
