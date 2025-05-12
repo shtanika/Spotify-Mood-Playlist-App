@@ -33,7 +33,7 @@ const authorizationUrl = `https://accounts.spotify.com/authorize?scope=${scope}`
 
 // Add function to sync user with backend
 async function syncUserWithBackend(userData: any) {
-    const BACKEND_API_URL = process.env.BACKEND_API_URL;
+    const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
     
     try {
         const response = await fetch(`${BACKEND_API_URL}/create_user`, {
@@ -69,7 +69,7 @@ const authOptions: NextAuthOptions = {
         async signIn({ user, account }) {
             if (account?.provider === 'spotify') {
                 // Send token to the Backend
-                const sendToken_response = await fetch(`${process.env.BACKEND_API_URL}/api/spotify/access_token`, {
+                const sendToken_response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/spotify/access_token`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -167,7 +167,7 @@ async function refreshAccessToken(token: ExtendedJWT){
         }
 
         // Send refresh token to replace token in Backend
-        await fetch(`${process.env.BACKEND_API_URL}/api/spotify/access_token`, {
+        await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/api/spotify/access_token`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

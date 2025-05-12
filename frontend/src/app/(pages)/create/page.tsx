@@ -21,7 +21,7 @@ const CreatePlaylist = () => {
   const [topArtists, setTopArtists] = useState([]);
 
   const [spotifyIdFromSession, setSpotifyIdFromSession] = useState<string | undefined>(undefined);
-
+  const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   useEffect(() => {
       console.log("Session Status:", session);
@@ -38,7 +38,7 @@ const CreatePlaylist = () => {
       //send access token to backend
     const sendAccessToken = async () => {
       try {
-        const response = await fetch(`${process.env.BACKEND_API_URL}/api/spotify/access_token`, {
+        const response = await fetch(`${BACKEND_API_URL}/api/spotify/access_token`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ access_token: session.accessToken }),
@@ -94,7 +94,7 @@ const CreatePlaylist = () => {
       return;
     }
     try {
-      const response = await fetch(`${process.env.BACKEND_API_URL}/api/spotify/create_playlist_test?access_token=${session.accessToken}`, {
+      const response = await fetch(`${BACKEND_API_URL}/api/spotify/create_playlist_test?access_token=${session.accessToken}`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -122,7 +122,7 @@ const CreatePlaylist = () => {
     setIsGenerating(true);
     try {
       //get playlist description from Gemini
-      const response = await fetch(`${process.env.BACKEND_API_URL}/create_recs`, {
+      const response = await fetch(`${BACKEND_API_URL}/create_recs`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ prompt: input, spotify_id: session?.spotifyId, access_token: session?.accessToken }),
@@ -143,7 +143,7 @@ const CreatePlaylist = () => {
 
       // Store prompt in database
       if (session?.spotifyId) {
-        await fetch(`${process.env.BACKEND_API_URL}/create_prompt`, {
+        await fetch(`${BACKEND_API_URL}/create_prompt`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
