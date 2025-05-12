@@ -27,7 +27,6 @@ jobs:
       ENV_NAME: backend-api-env
       BUCKET: beanstalk-bucket-shamaliat
       IMAGE_TAG: latest
-      VERSION: v-$(date +%s)
       ACCOUNT_ID: ${{ secrets.AWS_ACCOUNT_ID }}
 
     steps:
@@ -40,6 +39,9 @@ jobs:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
+
+    - name: Set version label
+      run: echo "VERSION=v-$(date +%s)" >> $GITHUB_ENV
 
     - name: Log in to Amazon ECR
       run: |
