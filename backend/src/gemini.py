@@ -1,11 +1,17 @@
 import os
 # TODO: google.generativeai is now deprecated; try to use google.genai instead
 import google.generativeai as genai
+import json
+import re
 
-genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
+GEMINI_API_KEY = os.environ.get("GOOGLE_API_KEY")
+if GEMINI_API_KEY:
+    genai.configure(api_key=GEMINI_API_KEY)
+else:
+    print("Warning: GOOGLE_API_KEY environment variable not set.")
 
 prompt_template = """
-Generate parameters for a music playlist based on the following mood/theme/style: "{theme}".
+Generate a 20-song music playlist based on the following theme/mood/style: "{theme}".
 
 The user's top artists and top tracks are provided below in JSON format.
 
@@ -15,26 +21,16 @@ User's Top Artists:
 User's Top Tracks:
 {tracks_json}
 
-Return only the following fields, formatted as comma-separated values inside quotation marks, using the format shown below:
+- The playlist should only include relevant songs from the user's top artists and tracks if they match the theme. Prioritize the user's top artists.
+- Keep it cohesive to the mood.
+- Output only a list of 20 songs in this JSON format:
 
-e.g.
-seed_tracks: "Track1", "Track2", "Track3"
-seed_artists: "Artist1", "Artist2"
+[
+    {{ "track": "Track Title", "artist": "Artist Name" }},
+    ...
+]
 
-e.g.
-seed_genres: "Genre1", "Genre2", "Genre3", "Genre4", "Genre5"
-
-Instructions:
-- You must choose only one of the following combinations:
-  - 3 tracks + 2 artists
-  - 2 tracks + 2 artists + 1 genre
-  - 1 track + 2 artists + 2 genres
-  - 5 genres
-- Prioritize selections from the user's top artists and tracks if they match the desired mood/theme/style.
-- Avoid generic or unrelated results. Do NOT use Spotify IDs—just names and genres.
-- Use genres listed under the top artists.
-
-Only return the output in this format. Do not include extra commentary or explanation.
+Do not include any explanation or text, only the list of 20 songs.
 """
 
 def get_gemini_recommendation(prompt_input, top_artists, top_tracks):
@@ -46,8 +42,15 @@ def get_gemini_recommendation(prompt_input, top_artists, top_tracks):
         tracks_json=top_tracks
     )
 
-    response = model.generate_content(filled_prompt)
-    if response and response.text:
-        return response.text
-    else:
-        return None
+    try:
+        response = model.generate_content(filled_prompt, stream=True)
+        raw_response_parts = []
+        for chunk in response:
+            if chunk.parts:
+                for part in chunk.parts:
+                    raw_response_parts.append(part)
+        return raw_response_parts  # Return the raw list of parts
+
+    except Exception as e:
+        print(f"Error generating content from Gemini: {e}")
+        return {"error": f"Gemini API error: {e}"}

@@ -6,16 +6,16 @@ from urllib.parse import quote
 # Get current user's top tracks and artists. Returns 20 tracks and 20 artists
 def get_spotify_top_data(access_token):
     if not access_token:
-        return None, {'error': 'Access token is not available'}, 400
+        return None, {'error': 'Access token is not available'}
     headers = {'Authorization': f'Bearer {access_token}'}
 
     top_tracks_response = requests.get('https://api.spotify.com/v1/me/top/tracks', headers=headers)
     if top_tracks_response.status_code != 200:
-        return {'error': 'Failed to get top tracks'}, 500
+        return None, {'error': 'Failed to get top tracks'}
             
     top_artists_response = requests.get('https://api.spotify.com/v1/me/top/artists', headers=headers)
     if top_artists_response.status_code != 200:
-        return {'error': 'Failed to get top artists'}, 500
+        return None, {'error': 'Failed to get top artists'}
             
     top_tracks = top_tracks_response.json()
     top_artists = top_artists_response.json()
@@ -84,7 +84,7 @@ def create_spotify_playlist(access_token, user_id, playlist_name, playlist_descr
         return None, {'error': 'Failed to create spotify playlist'}, 500
     else:
         return response.json(), None
-    
+
 # function to add tracks to spotify playlist
 def add_tracks_spotify_playlist(access_token, playlist_id, track_uris):
     if not access_token:
@@ -95,11 +95,14 @@ def add_tracks_spotify_playlist(access_token, playlist_id, track_uris):
 
     add_tracks_url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
     response = requests.post(add_tracks_url, json=tracks_data, headers=headers)
+    print(f"add_tracks_spotify_playlist response: {response.status_code}, {response.text}")
 
     if response.status_code != 201:
-        return None, {'error': 'Failed to add tracks to spotify playlist'}, 500
+        error_message = f"Failed to add tracks to spotify playlist. Status code: {response.status_code}, Response: {response.text}"
+        print(error_message)
+        return None, {'error': error_message}, response.status_code
     
-    return response.json(), None 
+    return response.json(), None
 
 # function to get the current user's user_id
 def get_user_id(access_token):

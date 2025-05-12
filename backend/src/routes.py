@@ -328,103 +328,76 @@ def init_routes(app):
             top_artists_json = json.dumps(top_artists_formatted)
             top_tracks_json = json.dumps(top_tracks_formatted)
 
-            gemini_raw = get_gemini_recommendation(data["prompt"], top_artists_json, top_tracks_json)
+            gemini_response_parts = get_gemini_recommendation(prompt, top_artists_json, top_tracks_json)
 
-            # parser
-            def extract_seeds(text):
-                seeds = {
-                    "seed_tracks": [],
-                    "seed_artists": [],
-                    "seed_genres": []
-                }
+            if isinstance(gemini_response_parts, dict) and "error" in gemini_response_parts:
+                return gemini_response_parts, 500
 
-                for key, value_list in seeds.items():
-                    pattern = rf'{key}:\s*(.*)'
-                    match = re.search(pattern, text)
-                    if match:
-                        raw_values = match.group(1).strip()
-                        #split by comma and remove quotes and whitespace
-                        values = [v.strip().strip('"') for v in raw_values.split(',')]
-                        #filter out empty strings that might be from extra commas
-                        seeds[key] = [v for v in values if v]
-                    else:
-                        seeds[key] = []
+            # 1. extract text from Gemini parts
+            full_text = ""
+            for part in gemini_response_parts:
+                if hasattr(part, 'text'):
+                    full_text += part.text
 
-            current_app.logger.info(f"final extracted seeds: '{seeds}")
+            # 2. extract JSON string from the full text
+            json_match = re.search(r"```(?:json)?\n?([\s\S]*?)\n?```", full_text, re.DOTALL)
+            if json_match:
+                json_string = json_match.group(1).strip()
+            else:
+                json_string = full_text.strip()
 
-            seed_tracks = seeds["seed_tracks"]
-            seed_artists = seeds["seed_artists"]
-            seed_genres = seeds["seed_genres"]
+            current_app.logger.info(f"Gemini JSON Response: {json_string}")
 
-            #for now just return the raw Gemini response
-            #return {'seeds': seeds, 'gemini_response': gemini_raw}, 200
-
-            track_data = []
-            artist_data = []
-
-            # For each seed_track and seed_artist, get Spotify ID of respective artist/track (return JSON of each) JOSHUA
-            if seed_tracks:
-                track_data = get_spotify_ids_for_tracks(access_token, seed_tracks)
-            seed_track_ids = [item['spotify_id'] for item in track_data if item.get('spotify_id')]
-            seed_tracks_param = ",".join(seed_track_ids[:5]) # limit to 5
-
-            if seed_artists:
-                artist_data = get_spotify_ids_for_artists(access_token, seed_artists)
-            seed_artist_ids = [item['spotify_id'] for item in artist_data if item.get('spotify_id')]
-            seed_artists_param = ",".join(seed_artist_ids[:5]) #limit to 5
-
-            seed_genres_param = ",".join(seed_genres[:5]) #limit to 5 genres
-
-
-            # Get JSON of recommendation from RapidAPI using the LLM generated seeds DONE
-            RAPIDAPI_KEY = os.getenv("RAPIDAPI_KEY")
-            url = "https://spotify23.p.rapidapi.com/recommendations/"
-            querystring = {
-                "limit": "20",
-                "seed_tracks": seed_tracks_param,
-                "seed_artists": seed_artists_param,
-                "seed_genres": seed_genres_param
-            }
-
-            headers = {
-                "x-rapidapi-host": "spotify23.p.rapidapi.com",
-                "x-rapidapi-key": RAPIDAPI_KEY
-            }
-
-            # Commented out to prevent running API; also add code for bad responses
+            # 3. parse the JSON string
             try:
-                response = requests.get(url, headers=headers, params=querystring)
-                #song_json = response.json()
-                response.raise_for_status()
-                recommended_tracks_data = response.json()
-            except requests.exceptions.RequestException as e:
-                return {'error': f'Error fetching recommendations from RapidAPI: {e}'}, 500
-            
+                recommendations = json.loads(json_string)
+            except json.JSONDecodeError as e:
+                current_app.logger.error(f"JSONDecodeError: {e} - Raw response: {json_string}")
+                return {'error': 'Invalid JSON from Gemini', 'raw': json_string}, 500
+
+            if not recommendations:
+                return {'error': 'No songs extracted from Gemini response', 'raw': full_text}, 500
+            current_app.logger.info(f"Extracted recommendations: {recommendations}")
+
+            # 4. search for track URIs on Spotify
+            track_uris, not_found = get_track_uris_from_spotify(access_token, recommendations)  #combine track search
+            if not track_uris and not not_found:
+                return {'error': 'No tracks found on Spotify', 'recommendations': recommendations}, 500
+
+            # 5. get user ID from Spotify
+            user_id, error = get_user_id(access_token)
+            if error:
+                return {'error': 'Could not get user ID', 'details': error}, 500
+
+            # 6. create playlist
+            playlist_name = f"{prompt} Vibes"
+            playlist_description = f"Playlist generated from your prompt: {prompt}"
+            playlist_data, error = create_spotify_playlist(access_token, user_id, playlist_name, track_uris)
+            if error:
+                return {'error': 'Failed to create Spotify playlist', 'details': error}, 500
+
+            playlist_id = playlist_data['id']
+
+            # 7. add tracks to the playlist
+            result = add_tracks_spotify_playlist(access_token, playlist_id, track_uris)
+            if isinstance(result, tuple):
+                response_data, error = result[:2]  #take first two elements
+            else:
+                response_data = result
+                error = None
+            if error:
+                return {'error': 'Failed to add tracks to playlist', 'details': error}, 500
+
             return {
-                'seeds': seeds,
-                'gemini_response': gemini_raw,
-                'track_spotify_ids': track_data,
-                'artist_spotify_ids': artist_data,
-                'recommendations': recommended_tracks_data
-            }, 200
+                'message': 'Playlist created successfully!',
+                'playlist_id': playlist_id,
+                'playlist_name': playlist_name,
+                'track_count': len(track_uris),
+                'not_found': not_found,
+                'recommendations': recommendations  # inc the parsed recommendations
+            }, 201
 
-            # Extract URI of songs DONE
-            ## Change songs to song_json when running with real / not mock data
-            for track in songs['tracks']:
-                track_uris.append(track['uri'])
 
-            # REDO or build upon previous Gemini call. Make it so that Gemini creates a playlist of 
-            # 20 songs from the seeds or just from prompt + user data AALEIA
-            
-            # For each track Gemini gives, use Spotify search endpoint to get uri for the track JOSHUA
-
-            # POST create playlist TANIKA
-
-            # POST add tracks TANIKA
-
-            #return {'playlist_id': ''}, 201
-            return {'gemini': f'{gemini_raw}\n seeds: {seeds}\n track_uris: {track_uris}'}, 201
-        
         # Route to test creating playlist, and adding user's saved tracks
         @api.route('/api/spotify/create_playlist_test', methods=['POST'])
         class SpotifyCreatePlaylistTest(Resource):
@@ -469,3 +442,48 @@ def init_routes(app):
                 return {'message': 'Test playlist created and saved tracks added successfully', 'playlist_id': playlist_id}, 201
     
     return api
+
+
+from urllib.parse import quote
+import requests
+
+def get_track_uris_from_spotify(access_token, recommendations):
+    """
+    Searches for track URIs on Spotify and returns a list of URIs and a list of not found tracks.
+    Uses the get_track_uri helper function.
+    """
+    track_uris = []
+    not_found = []
+    for rec in recommendations:
+        track_name = rec.get('track')
+        artist_name = rec.get('artist')
+
+        if not track_name or not artist_name:
+            print(f"Skipping invalid recommendation: {rec}")
+            not_found.append(rec)
+            continue
+            
+        query = f"{track_name} {artist_name}"
+        #  quote the query, to handle special characters in track and artist names
+        quoted_query = quote(query)
+        #search for the track
+        headers = {'Authorization': f'Bearer {access_token}'}
+        params = {'q': quoted_query, 'type': 'track', 'limit': 1}
+        response = requests.get("https://api.spotify.com/v1/search", headers=headers, params=params)
+
+        if response.status_code == 200:
+            items = response.json().get("tracks", {}).get("items", [])
+            if items:
+                track_id = items[0]["id"]
+                track_uri, uri_error = get_track_uri(access_token, track_id)  #use the helper
+                if uri_error:
+                    current_app.logger.error(f"Error getting URI for track {query}: {uri_error}")
+                    not_found.append(rec)
+                else:
+                    track_uris.append(track_uri)
+            else:
+                not_found.append(rec)
+        else:
+            print(f"Spotify search failed for {query}: {response.json()}")
+            not_found.append(rec)  #add to not found, and continue
+    return track_uris, not_found
