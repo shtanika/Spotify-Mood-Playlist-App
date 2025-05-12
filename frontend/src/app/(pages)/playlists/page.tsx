@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Bookmark, PlayCircle } from "lucide-react";
 import { useSession } from "next-auth/react";
@@ -34,7 +34,7 @@ const formatDuration = (ms: number) => { //convert from ms
   return `${minutes}:${seconds.padStart(2, "0")}`;
 };
 
-const PlaylistView = () => {
+function PlaylistContent() {
   const { data: session, status } = useSession();
   const [playlist, setPlaylist] = useState<Playlist | null>(null);
   const searchParams = useSearchParams();
@@ -195,6 +195,14 @@ const PlaylistView = () => {
         ))}
       </div>
     </div>
+  );
+}
+
+const PlaylistView = () => {
+  return (
+    <Suspense fallback={<div className="flex justify-center items-center min-h-screen">Loading...</div>}>
+      <PlaylistContent />
+    </Suspense>
   );
 };
 
