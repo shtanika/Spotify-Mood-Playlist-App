@@ -6,24 +6,70 @@ import { useRouter } from "next/navigation";
 import { User, Wand2 } from "lucide-react"; // Import the magic wand icon
 import { useSession } from "next-auth/react";
 
+import { ChevronRight } from "lucide-react";
+
 const CreatePlaylist = () => {
   const router = useRouter();
   const [input, setInput] = useState("");
-  const [playlistDescription, setPlaylistDescription] = useState(null); //store the playlist description
+  const [playlistDescription, setPlaylistDescription] = useState<string |null>(null); //store the playlist description
   const [error, setError] = useState<string | null>(null);
   const [showHistory, setShowHistory] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const {data: session, status} = useSession();
+    
+  const [topTracks, setTopTracks] = useState([]);
+  const [topArtists, setTopArtists] = useState([]);
+
+  const [spotifyIdFromSession, setSpotifyIdFromSession] = useState<string | undefined>(undefined);
 
 
   useEffect(() => {
       console.log("Session Status:", session);
       console.log("Session:", session);
+
       if (status === "loading") return;
-      if (status === "authenticated") {
+      
+      if (status === "authenticated" && session?.accessToken && session?.user) {
         console.log("Authenticated");
         console.log("Access Token:", session.accessToken);
-        console.log("Spotify Id:", session.spotifyId);      
+        console.log("Spotify Id:", session.spotifyId);
+        console.log("Session:", session)
+
+      //send access token to backend
+    const sendAccessToken = async () => {
+      try {
+        const response = await fetch("http://localhost:5000/api/spotify/access_token", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ access_token: session.accessToken }),
+        });
+        if (response.ok) {
+          console.log("Access token sent to backend successfully");
+        } else {
+          console.error("Failed to send access token to backend");
+        }
+      } catch (error) {
+        console.error("Error sending access token:", error);
+      }
+    };
+    sendAccessToken();
+
+	  const fetchSpotifyData = async () => {
+        try {
+          const [tracksResponse, artistsResponse] = await Promise.all([
+            fetch(`/api/spotify/topTracks?accessToken=${session.accessToken}`),
+            fetch(`/api/spotify/topArtists?accessToken=${session.accessToken}`)
+          ]);
+          const topTracksData = await tracksResponse.json();
+          const topArtistsData = await artistsResponse.json();
+          setTopTracks(topTracksData?.items || []);
+          setTopArtists(topArtistsData?.items || []);
+        } catch (error) {
+          console.error("Error fetching Spotify data:", error);
+        }
+      };
+      fetchSpotifyData();
+	  
       }
   }, [session, status]);
 
@@ -40,17 +86,46 @@ const CreatePlaylist = () => {
     setShowHistory(false); //hide prompt history after selection
   };
 
+
+  // Handler for creating playlist test
+  const handleCreatePlaylist = async () => {
+    if (!session || !session.accessToken){
+      setError("No access token found");
+      return;
+    }
+    try {
+      const response = await fetch(`http://localhost:5000/api/spotify/create_playlist_test?access_token=${session.accessToken}`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to create playlist"); 
+      }
+      const data = await response.json();
+      console.log("Playlist created: ", data);
+
+    } catch (error: any) {
+      setError(`Error creating playlist ${error.message}`);
+    }
+  }
+
+
   //handles request for playlist generation
   const handleSubmit = async () => {
     if (!input.trim()) return;
     
     setIsGenerating(true);
     try {
-      // Get playlist description from Gemini
-      const response = await fetch("/api/gemini", {
+      //get playlist description from Gemini
+      const response = await fetch("http://localhost:5000/create_recs", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ mood: input }),
+        body: JSON.stringify({ prompt: input, spotify_id: session?.spotifyId, access_token: session?.accessToken }),
       });
 
       if (!response.ok) {
@@ -58,11 +133,17 @@ const CreatePlaylist = () => {
       }
 
       const data = await response.json();
-      setPlaylistDescription(data.playlistDescription);
+      console.log("Backend response:", data);
+
+      setPlaylistDescription(`Seeds:\n${JSON.stringify(data.seeds, null, 2)}\n\n` +
+                               `Gemini Response:\n${data.gemini_response}\n\n` +
+                               `Track Spotify IDs:\n${JSON.stringify(data.track_spotify_ids, null, 2)}\n\n` +
+                               `Artist Spotify IDs:\n${JSON.stringify(data.artist_spotify_ids, null, 2)}\n\n` +
+                               `Recommendations:\n${JSON.stringify(data.recommendations, null, 2)}`);
 
       // Store prompt in database
       if (session?.spotifyId) {
-        await fetch('/api/backend/prompt', {
+        await fetch("http://localhost:5000/create_prompt", {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -92,7 +173,7 @@ const CreatePlaylist = () => {
 
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
-      e.preventDefault(); // Prevent default form submission behavior
+      e.preventDefault();
       handleSubmit();
     }
   };
@@ -163,9 +244,9 @@ const CreatePlaylist = () => {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="glass-card mt-8 p-6 text-center"
+            className="glass-card mt-8 p-6 text-left whitespace-pre-wrap font-mono text-sm"
           >
-            <p className="text-gray-800">{playlistDescription}</p>
+            {playlistDescription}
           </motion.div>
         )}
 
@@ -180,6 +261,25 @@ const CreatePlaylist = () => {
           </motion.div>
         )}
       </motion.div>
+
+      {/* Create Playlist button for testing
+      <motion.button
+        onClick={() => handleCreatePlaylist()}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 1, delay: 0.5 }}
+        className="btn"
+      >
+        <span className="flex items-center justify-center">
+          CREATE MY CUSTOM PLAYLIST
+          <ChevronRight className="w-6 h-6 ml-2" />
+        </span>
+      </motion.button>
+      
+      */}
+      
+  
+
     </div>
   );
 };

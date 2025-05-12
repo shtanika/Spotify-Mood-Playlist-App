@@ -1,13 +1,30 @@
-from flask import jsonify, request
+from flask import jsonify, request, session, current_app
 from flask_restx import Api, Resource, fields
 from src.models import User, Prompt, Playlist, PlaylistTrack
 from src.extensions import db
-import requests
-import os
 from dotenv import load_dotenv
+from src.gemini import get_gemini_recommendation
+from src.spotify_helpers import (
+    get_spotify_top_data, 
+    get_spotify_ids_for_tracks, 
+    get_spotify_ids_for_artists,
+    create_spotify_playlist,
+    add_tracks_spotify_playlist,
+    get_user_id,
+    get_track_uri,
+    get_spotify_saved_tracks
+    )
+from src.spotify_api import init_spotify_api
+import json
+import re
+
 
 def init_routes(app):
+
     api = Api(app, title="API", description="API documentation")
+
+    # include Spotify Web API routes
+    api = init_spotify_api(api)
 
     # API models
     user_model = api.model('User', {
@@ -266,24 +283,205 @@ def init_routes(app):
             
             return {'message': 'Track added successfully'}, 201
     
+
+    
+
     @api.route('/create_recs')
     class CreateRecs(Resource):
         @api.expect(recommendation_model, validate=True)
         @api.doc(description="Generate recommendations from user prompt")
         def post(self):
             data = request.get_json()
-            seed_tracks = ""
-            seed_artists = ""
-            seed_genres = ""
+            prompt = request.json.get('prompt')
+            spotify_id = request.json.get('spotify_id')
+            access_token = request.json.get('access_token')
+
+            if not prompt or not spotify_id:
+                return {'error': 'Missing prompt or Spotify ID'}, 400 
+
             track_uris = []
+
             # Get Spotify user data (top tracks and top artists) JOSHUA
-
+            top_data, error = get_spotify_top_data(access_token)
+            print(f"TOP DATA: {top_data}")
+            if error:
+                return error, 500
+            if top_data:
+                top_tracks = top_data['top_tracks']
+                top_artists = top_data['top_artists']
+            
             # Send user data (JSON should incl genre for artists) and prompt to Gemini (should return seed_tracks, seed_artists, and seed_genres) AALEIA
+            
+            top_artists_formatted = [{
+                "name": artist["name"],
+                "genres": artist.get("genres", []),
+                "popularity": artist.get("popularity", 0)
+            } for artist in top_artists.get("items", [])]
 
-            # POST create playlist TANIKA
+            top_tracks_formatted = [{
+                "title": track["name"],
+                "artist": track["artists"][0]["name"] if track.get("artists") else ""
+            } for track in top_tracks.get("items", [])]
 
-            # POST add tracks TANIKA
+            top_artists_json = json.dumps(top_artists_formatted)
+            top_tracks_json = json.dumps(top_tracks_formatted)
 
-            return {'playlist_id': ''}, 201
+            gemini_response_parts = get_gemini_recommendation(prompt, top_artists_json, top_tracks_json)
+
+            if isinstance(gemini_response_parts, dict) and "error" in gemini_response_parts:
+                return gemini_response_parts, 500
+
+            # 1. extract text from Gemini parts
+            full_text = ""
+            for part in gemini_response_parts:
+                if hasattr(part, 'text'):
+                    full_text += part.text
+
+            # 2. extract JSON string from the full text
+            json_match = re.search(r"```(?:json)?\n?([\s\S]*?)\n?```", full_text, re.DOTALL)
+            if json_match:
+                json_string = json_match.group(1).strip()
+            else:
+                json_string = full_text.strip()
+
+            current_app.logger.info(f"Gemini JSON Response: {json_string}")
+
+            # 3. parse the JSON string
+            try:
+                recommendations = json.loads(json_string)
+            except json.JSONDecodeError as e:
+                current_app.logger.error(f"JSONDecodeError: {e} - Raw response: {json_string}")
+                return {'error': 'Invalid JSON from Gemini', 'raw': json_string}, 500
+
+            if not recommendations:
+                return {'error': 'No songs extracted from Gemini response', 'raw': full_text}, 500
+            current_app.logger.info(f"Extracted recommendations: {recommendations}")
+
+            # 4. search for track URIs on Spotify
+            track_uris, not_found = get_track_uris_from_spotify(access_token, recommendations)  #combine track search
+            if not track_uris and not not_found:
+                return {'error': 'No tracks found on Spotify', 'recommendations': recommendations}, 500
+
+            # 5. get user ID from Spotify
+            user_id, error = get_user_id(access_token)
+            if error:
+                return {'error': 'Could not get user ID', 'details': error}, 500
+
+            # 6. create playlist
+            playlist_name = f"{prompt} Vibes"
+            playlist_description = f"Playlist generated from your prompt: {prompt}"
+            playlist_data, error = create_spotify_playlist(access_token, user_id, playlist_name, track_uris)
+            if error:
+                return {'error': 'Failed to create Spotify playlist', 'details': error}, 500
+
+            playlist_id = playlist_data['id']
+
+            # 7. add tracks to the playlist
+            result = add_tracks_spotify_playlist(access_token, playlist_id, track_uris)
+            if isinstance(result, tuple):
+                response_data, error = result[:2]  #take first two elements
+            else:
+                response_data = result
+                error = None
+            if error:
+                return {'error': 'Failed to add tracks to playlist', 'details': error}, 500
+
+            return {
+                'message': 'Playlist created successfully!',
+                'playlist_id': playlist_id,
+                'playlist_name': playlist_name,
+                'track_count': len(track_uris),
+                'not_found': not_found,
+                'recommendations': recommendations  # inc the parsed recommendations
+            }, 201
+
+
+        # Route to test creating playlist, and adding user's saved tracks
+        @api.route('/api/spotify/create_playlist_test', methods=['POST'])
+        class SpotifyCreatePlaylistTest(Resource):
+            def post(self):
+                # Request access token 
+                access_token = request.args.get('access_token')
+                if not access_token:
+                    return {'error': 'Access token is missing'}, 400
+                
+                # get user id
+                user_id, error = get_user_id(access_token)
+                if error:
+                    return error, 400
+
+                # get saved tracks and their track ids
+                saved_tracks_data, error = get_spotify_saved_tracks(access_token, limit=10)
+                if error:
+                    return error, 400
+                track_ids = [track['track']['id'] for track in saved_tracks_data['items']]
+
+                # convert track ids to track_uris
+                track_uris = []
+                for track_id in track_ids:
+                    track_uri, error = get_track_uri(access_token, track_id)
+                    if error:
+                        return error, 400
+                    track_uris.append(track_uri)
+                
+                # create playlist
+                playlist_name = 'Create Playlist Test'
+                playlist_description = 'Testing creating a playlist and adding saved tracks'
+                playlist_data, error = create_spotify_playlist(access_token, user_id, playlist_name, track_uris)
+                if error:
+                    return error, 400
+                playlist_id = playlist_data['id']
+
+                # add tracks to playlist
+                _, error = add_tracks_spotify_playlist(access_token, playlist_id, track_uris)
+                if error:
+                    return error, 400
+
+                return {'message': 'Test playlist created and saved tracks added successfully', 'playlist_id': playlist_id}, 201
     
     return api
+
+
+from urllib.parse import quote
+import requests
+
+def get_track_uris_from_spotify(access_token, recommendations):
+    """
+    Searches for track URIs on Spotify and returns a list of URIs and a list of not found tracks.
+    Uses the get_track_uri helper function.
+    """
+    track_uris = []
+    not_found = []
+    for rec in recommendations:
+        track_name = rec.get('track')
+        artist_name = rec.get('artist')
+
+        if not track_name or not artist_name:
+            print(f"Skipping invalid recommendation: {rec}")
+            not_found.append(rec)
+            continue
+            
+        query = f"{track_name} {artist_name}"
+        #  quote the query, to handle special characters in track and artist names
+        quoted_query = quote(query)
+        #search for the track
+        headers = {'Authorization': f'Bearer {access_token}'}
+        params = {'q': quoted_query, 'type': 'track', 'limit': 1}
+        response = requests.get("https://api.spotify.com/v1/search", headers=headers, params=params)
+
+        if response.status_code == 200:
+            items = response.json().get("tracks", {}).get("items", [])
+            if items:
+                track_id = items[0]["id"]
+                track_uri, uri_error = get_track_uri(access_token, track_id)  #use the helper
+                if uri_error:
+                    current_app.logger.error(f"Error getting URI for track {query}: {uri_error}")
+                    not_found.append(rec)
+                else:
+                    track_uris.append(track_uri)
+            else:
+                not_found.append(rec)
+        else:
+            print(f"Spotify search failed for {query}: {response.json()}")
+            not_found.append(rec)  #add to not found, and continue
+    return track_uris, not_found
