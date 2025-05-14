@@ -21,7 +21,8 @@ export async function middleware(req){
 export const config = {
     matcher: [
         '/library',
-        '/playlist',
-        '/profile'
+        '/playlists',
+        '/profile',
+        '/create'
     ]
 };

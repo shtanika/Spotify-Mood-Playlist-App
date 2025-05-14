@@ -460,13 +460,13 @@ def get_track_uris_from_spotify(access_token, recommendations):
             print(f"Skipping invalid recommendation: {rec}")
             not_found.append(rec)
             continue
-            
-        query = f"{track_name} {artist_name}"
-        #  quote the query, to handle special characters in track and artist names
-        quoted_query = quote(query)
+
+        # strict search query, might need something looser for inaccurate gemini track recommendations.    
+        query = f'track:"{track_name}" artist:"{artist_name}"'
+        
         #search for the track
         headers = {'Authorization': f'Bearer {access_token}'}
-        params = {'q': quoted_query, 'type': 'track', 'limit': 1}
+        params = {'q': query, 'type': 'track', 'limit': 1}
         response = requests.get("https://api.spotify.com/v1/search", headers=headers, params=params)
 
         if response.status_code == 200:
@@ -480,7 +480,23 @@ def get_track_uris_from_spotify(access_token, recommendations):
                 else:
                     track_uris.append(track_uri)
             else:
-                not_found.append(rec)
+                # if strict search fails, do loose search (not accurate).
+                loose_query = f"{quote(track_name)} {quote(artist_name)}"
+                params['q'] = loose_query
+                response = requests.get("https://api.spotify.com/v1/search", headers=headers, params=params)
+
+                if response.status_code == 200:
+                    items = response.json().get("tracks", {}).get("items", [])
+                    if items:
+                        track_id = items[0]["id"]
+                        track_uri, uri_error = get_track_uri(access_token, track_id)  #use the helper
+                        if uri_error:
+                            current_app.logger.error(f"Error getting URI for track {query}: {uri_error}")
+                            not_found.append(rec)
+                        else:
+                            track_uris.append(track_uri)
+                    else:
+                        not_found.append(rec) 
         else:
             print(f"Spotify search failed for {query}: {response.json()}")
             not_found.append(rec)  #add to not found, and continue
