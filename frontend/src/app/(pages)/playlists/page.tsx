@@ -3,6 +3,7 @@
 import React, { useState, useEffect, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Bookmark, PlayCircle } from "lucide-react";
+import { BsSpotify } from "react-icons/bs"; 
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
@@ -10,6 +11,7 @@ import { useSearchParams } from "next/navigation";
 interface Playlist {
   name: string;
   songs: Song[];
+  external_urls: { spotify: string };
 }
 
 interface Song {
@@ -126,6 +128,9 @@ function PlaylistContent() {
             setPlaylist({
               name: playlistDetails.name,
               songs: songs,
+              external_urls: {
+                spotify: playlistDetails.external_urls.spotify
+              }
             });
             console.log("Playlist state updated:", {
               name: playlistDetails.name,
@@ -154,9 +159,14 @@ function PlaylistContent() {
       {/* header playlist title */}
       <div className="w-full max-w-2xl flex justify-between items-center mb-6">
         <h1 className="text-2xl font-bold">{playlist.name}</h1>
-        <button className="px-4 py-2 flex items-center gap-2 bg-gray-300 text-black border border-black rounded-full hover:bg-gray-400 transition">
-          <Bookmark className="w-5 h-5" /> Save to Library
-        </button>
+        <a 
+          href={playlist.external_urls.spotify}
+          target="_blank" // opens to new tab
+          rel="noopener noreferrer" // for good security practice after using _blank
+          className="px-4 py-2 flex items-center gap-2 bg-gray-300 text-black border border-black rounded-full hover:bg-gray-400 transition"
+          >
+          <BsSpotify className="w-5 h-5"/> View on Spotify
+        </a>
       </div>
 
       {/* songs */}
