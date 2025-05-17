@@ -49,8 +49,6 @@ export default function Home() {
             <ChevronRight className="w-6 h-6 ml-2" />
           </span>
         </button>
-        {/* REMOVE WHEN DONE TESTING DARK MODE */}
-        <ThemeToggle></ThemeToggle>
       </main>
     </div>
   );
