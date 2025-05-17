@@ -4,6 +4,7 @@ import { useSession, signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
 import { ChevronRight } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 export default function Home() {
 
