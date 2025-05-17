@@ -24,16 +24,11 @@ const CreatePlaylist = () => {
   const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
   useEffect(() => {
-      console.log("Session Status:", session);
-      console.log("Session:", session);
-
       if (status === "loading") return;
       
       if (status === "authenticated" && session?.accessToken && session?.user) {
         console.log("Authenticated");
-        console.log("Access Token:", session.accessToken);
         console.log("Spotify Id:", session.spotifyId);
-        console.log("Session:", session)
 
 
 	  const fetchSpotifyData = async () => {
