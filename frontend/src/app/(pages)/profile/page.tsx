@@ -7,8 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-//import { set } from "lodash";
-
+//import { useTheme } from "next-themes";
 
 interface UserData {
   display_name: string;
@@ -45,7 +44,6 @@ interface TopArtist {
 }
 
 const Profile = () => {
-
   // placeholder user data REPLACE LATER
   const {data: session, status} = useSession();
   const { theme, setTheme } = useTheme();
@@ -59,7 +57,7 @@ const Profile = () => {
   const [username, setUsername] = useState("User12345");
   const [email, setEmail] = useState("user12345@gmail.com");
   const userSince = "March 2025";
-  const [darkMode, setDarkMode] = useState(true);
+  const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [explicitFilter, setExplicitFilter] = useState(false);
 
