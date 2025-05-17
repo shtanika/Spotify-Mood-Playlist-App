@@ -56,11 +56,13 @@ const Navbar = () => {
           <Link href="/home" className="text-black hover:text-gray-600 transition-colors font-bold dark:text-white">
             Home
           </Link>
-          <Link href="/create" className="text-black hover:text-gray-600 transition-colors font-bold dark:text-white">
-            Create
-          </Link>
 
-          {/* Show Library Link if signed in */}
+          {/* Show Create and Library Links if signed in */}
+          {session && (
+            <Link href="/create" className="text-black hover:text-gray-600 transition-colors font-bold dark:text-white">
+              Create
+            </Link>
+          )}
           {session && (
             <Link href="/library" className="text-black hover:text-gray-600 transition-colors font-bold dark:text-white">
               Library
