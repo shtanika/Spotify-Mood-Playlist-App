@@ -35,24 +35,6 @@ const CreatePlaylist = () => {
         console.log("Spotify Id:", session.spotifyId);
         console.log("Session:", session)
 
-      //send access token to backend
-    const sendAccessToken = async () => {
-      try {
-        const response = await fetch(`${BACKEND_API_URL}/api/spotify/access_token`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ access_token: session.accessToken }),
-        });
-        if (response.ok) {
-          console.log("Access token sent to backend successfully");
-        } else {
-          console.error("Failed to send access token to backend");
-        }
-      } catch (error) {
-        console.error("Error sending access token:", error);
-      }
-    };
-    sendAccessToken();
 
 	  const fetchSpotifyData = async () => {
         try {
@@ -87,6 +69,7 @@ const CreatePlaylist = () => {
   };
 
 
+  /*
   // Handler for creating playlist test
   const handleCreatePlaylist = async () => {
     if (!session || !session.accessToken){
@@ -113,6 +96,8 @@ const CreatePlaylist = () => {
       setError(`Error creating playlist ${error.message}`);
     }
   }
+    */
+    
 
 
   //handles request for playlist generation

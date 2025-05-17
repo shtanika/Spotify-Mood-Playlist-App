@@ -6,24 +6,7 @@ from urllib.parse import quote
 
 
 def init_spotify_api(api):
-    # Spotify Web API endpoints, including fetching access token from frontend
-    # Route for the Spotify access token for Spotify functions in the backend
-    @api.route('/api/spotify/access_token', methods=['POST', 'GET'])
-    class SpotifyAccessToken(Resource):
-        def post(self):
-            # Saves access_token globally, when user signs in or token is refreshed.
-            global access_token
-            access_token = request.json.get('access_token')
-            if not access_token:
-                return {'error': 'Access token could not be stored'}, 400
-            return {'message': 'Access token stored successfully'}, 200
-        
-        def get(self):
-            # endpoint to get access token, may not need yet since access token is globally saved and frontend does not need it. 
-            global access_token
-            if access_token:
-                return {'access_token': access_token}
-            return {'error': 'Can not get access token'}, 400
+    # Spotify Web API endpoints
 
     # Route for top artist and top tracks, can be used in frontend. May structure future spotify endpoints like this, and replace frontend spotify api with these.
     @api.route('/api/spotify/top')
