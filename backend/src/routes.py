@@ -281,7 +281,6 @@ def init_routes(app):
                 'playlist_name': playlist.playlist_name,
                 'created_at': playlist.created_at.isoformat(),
                 'tracks': [{
-                    'id': str(track.id),
                     'spotify_track_id': track.spotify_track_id,
                     'track_name': track.track_name,
                     'artist_name': track.artist_name
