@@ -122,6 +122,7 @@ const CreatePlaylist = () => {
                                `Recommendations:\n${JSON.stringify(data.recommendations, null, 2)}`);
 
       // Store prompt in database
+      /*
       if (session?.spotifyId) {
         await fetch(`${BACKEND_API_URL}/create_prompt`, {
           method: 'POST',
@@ -133,7 +134,8 @@ const CreatePlaylist = () => {
           }),
         });
       }
-
+      */
+     
       setError(null);
     } catch (error: unknown) {
       let message = '';
