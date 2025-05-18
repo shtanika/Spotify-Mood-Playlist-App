@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server';
+// AI Generated with ChatGPT for efficiency but unused code; directly called backend API in pages instread
 
 // Define the base URL for the backend API
 const BACKEND_API_URL = process.env.BACKEND_API_URL as string;

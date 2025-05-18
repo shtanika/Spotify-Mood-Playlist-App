@@ -27,6 +27,7 @@ def init_routes(app):
     api = init_spotify_api(api)
 
     # API models
+    # AI Generated based on the models.py for efficiency
     user_model = api.model('User', {
         'spotify_id': fields.String(required=True, description='Spotify ID of the user'),
         'email': fields.String(description='Email of the user'),
@@ -191,6 +192,7 @@ def init_routes(app):
 
 
     # Prompt routes
+    # AI Generated with ChatGPT due to repetitive code
     @api.route('/get_prompt/<prompt_id>')
     class GetPrompt(Resource):
         @api.doc(description="Get a specific prompt by ID.")
@@ -263,6 +265,7 @@ def init_routes(app):
             }, 201
         
     # Playlist routes
+    # AI Generated with ChatGPT due to repetitive code
     @api.route('/get_playlist/<playlist_id>')
     class GetPlaylist(Resource):
         @api.doc(description="Get a playlist by its ID with its tracks.")
