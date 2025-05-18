@@ -57,6 +57,8 @@ const Profile = () => {
 
   const [userBackendData, setUserBackendData] = useState<UserData | null>(null);
   const [username, setUsername] = useState("");
+  const [usernameUpdateSuccess, setUsernameUpdateSuccess] = useState(false);
+  const [emailUpdateSuccess, setEmailUpdateSuccess] = useState(false);
   const [email, setEmail] = useState("");
   const userSince = "March 2025";
   const [darkMode, setDarkMode] = useState(false);
@@ -157,6 +159,10 @@ const Profile = () => {
       const updatedUser = await response.json();
       console.log("Updated User: ", updatedUser);
       setIsUpdatingUsername(false);
+      setUsernameUpdateSuccess(true);
+      setTimeout(() => {
+        setUsernameUpdateSuccess(false);
+      }, 3000);
     } catch (error) {
       console.error("Error updating username: ", error);
       setUpdateError("Failed to update username");
@@ -177,6 +183,10 @@ const Profile = () => {
       const updatedUser = await response.json();
       console.log("Updated User: ", updatedUser);
       setIsUpdatingEmail(false);
+      setEmailUpdateSuccess(true);
+      setTimeout(() => {
+        setEmailUpdateSuccess(false);
+      }, 3000);
     } catch (error) {
       console.error("Error updating email: ", error);
       setUpdateError("Failed to update email");
@@ -201,7 +211,7 @@ const Profile = () => {
 
           {/* username and join date */}
           <div>
-            <h1 className="text-2xl font-bold">{username || "Loading. . ."}</h1>
+            <h1 className="text-2xl font-bold">{userBackendData?.display_name}</h1>
             <p className="text-gray-800 text-sm dark:text-gray-100">User since {userSince}</p>
           </div>
         </div>
@@ -212,45 +222,63 @@ const Profile = () => {
           {/* change username */}
           <div className="glass-card p-4 rounded-2xl shadow-lg">
             <h2 className="text-lg font-semibold mb-2">Change Username</h2>
-            <input 
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 rounded-lg border focus:outline-none bg-white/50 backdrop-blur-sm"
-            />
-            <button 
-              onClick={handleUsernameUpdate}
-              disabled={isUpdatingUsername || !username.trim() || username === userBackendData?.display_name}
-              className={`px-4 py-2 rounded-lg text-white ${
-                isUpdatingUsername || !username.trim() || username === userBackendData?.display_name
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
-              }`}
+            <div className="flex items-center gap-2">
+              <input 
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="flex-1 p-2 rounded-lg border focus:outline-none bg-white/50 backdrop-blur-sm"
+                placeholder="Enter new username"
+              />
+              <button 
+                onClick={handleUsernameUpdate}
+                disabled={isUpdatingUsername || !username.trim() || username === userBackendData?.display_name}
+                className={`whitespace-nowrap px-4 py-2 rounded-lg text-white ${
+                  isUpdatingUsername || !username.trim() || username === userBackendData?.display_name
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600"
+                }`}
               >
-              {isUpdatingUsername ? "Updating..." : "Update Username"}
-            </button>
+                {isUpdatingUsername ? "Updating..." : "Update"}
+              </button>
+            </div>
+            {usernameUpdateSuccess && (
+              <p className="text-green-500">Username updated successfully!</p>
+            )}
+            {updateError && (
+              <p className="text-red-500">Error: {updateError}</p>
+            )}
           </div>
 
           {/* change email */}
           <div className="glass-card p-4 rounded-2xl shadow-lg">
             <h2 className="text-lg font-semibold mb-2">Change Email</h2>
-            <input 
-              type="email"
-              value={email || "Loading. . ."}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 rounded-lg border focus:outline-none bg-white/50 backdrop-blur-sm"
-            />
-            <button 
-              onClick={handleEmailUpdate}
-              disabled={isUpdatingEmail || !email.trim() || email === userBackendData?.email}
-              className={`px-4 py-2 rounded-lg text-white ${
-                isUpdatingEmail || !email.trim() || email === userBackendData?.email
-                  ? "bg-gray-400 cursor-not-allowed"
-                  : "bg-blue-500 hover:bg-blue-600"
-              }`}
+            <div className="flex items-center gap-2">
+              <input 
+                type="email"
+                value={email || "Loading. . ."}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 p-2 rounded-lg border focus:outline-none bg-white/50 backdrop-blur-sm"
+                placeholder="Enter new email"
+              />
+              <button 
+                onClick={handleEmailUpdate}
+                disabled={isUpdatingEmail || !email.trim() || email === userBackendData?.email}
+                className={`whitespace-nowrap px-4 py-2 rounded-lg text-white ${
+                  isUpdatingEmail || !email.trim() || email === userBackendData?.email
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600"
+                }`}
               >
-              {isUpdatingEmail ? "Updating..." : "Update Email"}
-            </button>
+                {isUpdatingEmail ? "Updating..." : "Update"}
+              </button>
+            </div>
+            {emailUpdateSuccess && (
+              <p className="text-green-500">Email updated successfully!</p>
+            )}
+            {updateError && (
+              <p className="text-red-500">Error: {updateError}</p>
+            )}
           </div>
 
           {/* change spotify account */}
