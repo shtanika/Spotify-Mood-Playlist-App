@@ -204,6 +204,7 @@ const Profile = () => {
   const handleChangeAccount = async () => {
     try {
       await signOut({ redirect: false });
+      // Redirect to Spotify login with account selection prompt generated with ChatGPT for efficiency
       window.location.href = `/api/auth/signin/spotify?callbackUrl=${encodeURIComponent(
         window.location.origin + '/profile'
       )}&prompt=select_account`;

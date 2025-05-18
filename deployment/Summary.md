@@ -1,4 +1,5 @@
 # Summary of Backend Deployment 
+Generated with ChatGPT for better formatted / worded documentation of the complicated process of deploying backend in order to look back on it later.
 
 1. Pushed Docker image to Amazon ECR
 

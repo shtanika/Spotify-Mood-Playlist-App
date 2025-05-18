@@ -118,6 +118,7 @@
 }
 
 @layer components {
+  /* Initial glass effect code below generated with ChatGPT for efficiency */
   .glass-container {
     @apply bg-white/35 
       rounded-[20px] 

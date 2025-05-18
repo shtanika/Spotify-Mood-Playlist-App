@@ -1,6 +1,6 @@
 import logging
 from logging.config import dictConfig
-
+# AI Generated with ChatGPT in order to have a logger for debugging
 def init_logger():
     dictConfig({
         'version': 1,
