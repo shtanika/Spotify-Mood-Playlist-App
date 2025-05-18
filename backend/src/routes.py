@@ -127,6 +127,68 @@ def init_routes(app):
                 db.session.rollback()
                 return {'error': str(e)}, 500
 
+    @api.route('/change_username/<spotify_id>')
+    class ChangeUsername(Resource):
+        @api.doc(description="Change a user's display name.")
+        @api.param('display_name', 'The new display name for the user', required=True)
+        @api.response(200, 'Username updated successfully')
+        @api.response(404, 'User not found')
+        @api.response(500, 'Internal server error')
+        def put(self, spotify_id):
+            display_name = request.args.get('display_name')
+            if not display_name:
+                return {'error': 'New display name is required'}, 400
+                
+            try:
+                user = User.query.filter_by(spotify_id=spotify_id).first()
+                if not user:
+                    return {'error': 'User not found'}, 404
+                    
+                user.display_name = display_name
+                db.session.commit()
+                
+                return {
+                    'id': str(user.id),
+                    'spotify_id': user.spotify_id,
+                    'display_name': user.display_name,
+                    'message': 'Username updated successfully'
+                }, 200
+                
+            except Exception as e:
+                db.session.rollback()
+                return {'error': str(e)}, 500
+    
+    @api.route('/change_email/<spotify_id>')
+    class ChangeEmail(Resource):
+        @api.doc(description="Change a user's email address.")
+        @api.param('email', 'The new email address for the user', required=True)
+        @api.response(200, 'Email updated successfully')
+        @api.response(404, 'User not found')
+        @api.response(500, 'Internal server error')
+        def put(self, spotify_id):
+            email = request.args.get('email')
+            if not email:
+                return {'error': 'New email address is required'}, 400
+                
+            try:
+                user = User.query.filter_by(spotify_id=spotify_id).first()
+                if not user:
+                    return {'error': 'User not found'}, 404
+                    
+                user.email = email
+                db.session.commit()
+                
+                return {
+                    'id': str(user.id),
+                    'spotify_id': user.spotify_id,
+                    'email': user.email,
+                    'message': 'Email updated successfully'
+                }, 200
+                
+            except Exception as e:
+                db.session.rollback()
+                return {'error': str(e)}, 500
+
 
     # Prompt routes
     @api.route('/get_prompt/<prompt_id>')
