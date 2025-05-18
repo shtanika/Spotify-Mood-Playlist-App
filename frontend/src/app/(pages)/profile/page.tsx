@@ -7,6 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { signOut } from "next-auth/react";
 
 interface UserData {
   display_name: string;
@@ -200,7 +201,19 @@ const Profile = () => {
     }
   };
 
-    return (
+  const handleChangeAccount = async () => {
+    try {
+      await signOut({ redirect: false });
+      window.location.href = `/api/auth/signin/spotify?callbackUrl=${encodeURIComponent(
+        window.location.origin + '/profile'
+      )}&prompt=select_account`;
+    } catch (error) {
+      console.error("Error changing account:", error);
+      setUpdateError("Failed to change account. Please try again.");
+    }
+  };
+
+  return (
 
 	<div className="flex flex-col sm:flex-row min-h-screen px-8 sm:px-20 pt-22 gap-16 sm:gap-45 font-[family-name:var(--font-geist-sans)] max-w-7xl mx-auto">
       
@@ -292,7 +305,9 @@ const Profile = () => {
             <h2 className="text-lg font-semibold mb-2">Spotify Account</h2>
             <div className="flex justify-between items-center">
               <span className="text-sm">Connected</span>
-              <button className="text-blue-400 text-sm hover:underline">
+              <button 
+                onClick={handleChangeAccount}
+                className="text-blue-400 text-sm hover:underline">
                 Change Account
               </button>
             </div>
