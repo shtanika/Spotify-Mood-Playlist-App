@@ -363,6 +363,21 @@ def init_routes(app):
 
             track_uris = []
 
+            # Get user from database
+            user = User.query.filter_by(spotify_id=spotify_id).first()
+            if not user:
+                return {'error': 'User not found'}, 404
+            
+            # Create prompt in database
+            new_prompt = Prompt(
+                user_id=user.id,
+                mood=prompt,
+                additional_notes=None
+            )
+            db.session.add(new_prompt)
+            db.session.flush()
+            prompt_id = new_prompt.id
+
             # Get Spotify user data (top tracks and top artists) JOSHUA
             top_data, error = get_spotify_top_data(access_token)
             print(f"TOP DATA: {top_data}")
@@ -437,6 +452,16 @@ def init_routes(app):
                 return {'error': 'Failed to create Spotify playlist', 'details': error}, 500
 
             playlist_id = playlist_data['id']
+
+            # 6.5 create playlist in database
+            new_playlist = Playlist(
+                user_id=user.id,
+                prompt_id=prompt_id,
+                spotify_playlist_id=playlist_id,
+                playlist_name=playlist_name
+            )
+            db.session.add(new_playlist)
+            db.session.commit()
 
             # 7. add tracks to the playlist
             result = add_tracks_spotify_playlist(access_token, playlist_id, track_uris)
