@@ -7,7 +7,7 @@ import { Switch } from "@/components/ui/switch";
 import { ChevronRight } from "lucide-react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
-//import { useTheme } from "next-themes";
+import { signOut } from "next-auth/react";
 
 interface UserData {
   display_name: string;
@@ -52,11 +52,16 @@ const Profile = () => {
   const [topArtistsData, setTopArtistsData] = useState<TopArtist[] | null>(null);
   const [savedTracksData, setSavedTracksData] = useState(null);
   const [userPlaylistsData, setUserPlaylistData] = useState<Playlist[] | null>(null);
+  const [isUpdatingUsername, setIsUpdatingUsername] = useState(false);
+  const [isUpdatingEmail, setIsUpdatingEmail] = useState(false);
+  const [updateError, setUpdateError] = useState<string | null>(null);
 
-
-  const [username, setUsername] = useState("User12345");
-  const [email, setEmail] = useState("user12345@gmail.com");
-  const userSince = "March 2025";
+  const [userBackendData, setUserBackendData] = useState<UserData | null>(null);
+  const [username, setUsername] = useState("");
+  const [usernameUpdateSuccess, setUsernameUpdateSuccess] = useState(false);
+  const [emailUpdateSuccess, setEmailUpdateSuccess] = useState(false);
+  const [email, setEmail] = useState("");
+  const [userSince, setUserSince] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [explicitFilter, setExplicitFilter] = useState(false);
@@ -72,13 +77,19 @@ const Profile = () => {
     setTheme(checked ? "dark" : "light");
   };
 
+  const formatUserSince = (dateString: string): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'long', 
+      year: 'numeric' 
+    });
+  };
+
   useEffect(() => {
-    console.log("Session Status:", session);
-    console.log("Session:", session);
     if (status === "loading") return;
     if (status === "authenticated") {
       console.log("Authenticated");
-      console.log("Access Token:", session.accessToken);
       console.log("Spotify Id:", session.spotifyId);      
     }
     if(session?.accessToken){
@@ -112,10 +123,21 @@ const Profile = () => {
             setExplicitFilter(false);
           }
           setUserData(userData);
+          //setUsername(userData.display_name);
+          //setEmail(userData.email);
           setTopTracksData(topTracksData);
           setTopArtistsData(topArtistsData);
           setSavedTracksData(savedTracksData);
           setUserPlaylistData(userPlaylistsData);
+
+          const userBackendResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/get_user/${session.spotifyId}`);
+          const userBackendData = await userBackendResponse.json();
+          setUserBackendData(userBackendData);
+          console.log("User Backend Data: ", userBackendData);
+          setEmail(userBackendData.email);
+          setUsername(userBackendData.display_name);
+          setUserSince(userBackendData.created_at);
+
         } catch (error) {
           console.error("Error fetching user data: ", error);
         }
@@ -131,7 +153,67 @@ const Profile = () => {
 	  : "bg-white text-black border-gray-300";
 
     
-    return (
+  const handleUsernameUpdate = async () => {
+    setIsUpdatingUsername(true);
+    setUpdateError(null);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/change_username/${session?.spotifyId}?display_name=${encodeURIComponent(username)}`, {
+        method: 'PUT'
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to update username: ${response.statusText}`);
+      }
+      const updatedUser = await response.json();
+      console.log("Updated User: ", updatedUser);
+      setIsUpdatingUsername(false);
+      setUsernameUpdateSuccess(true);
+      setTimeout(() => {
+        setUsernameUpdateSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error updating username: ", error);
+      setUpdateError("Failed to update username");
+      setIsUpdatingUsername(false);
+    }
+  };
+
+  const handleEmailUpdate = async () => {
+    setIsUpdatingEmail(true);
+    setUpdateError(null);
+    try {
+      const response = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/change_email/${session?.spotifyId}?email=${encodeURIComponent(email)}`, {
+        method: 'PUT'
+      });
+      if (!response.ok) {
+        throw new Error(`Failed to update email: ${response.statusText}`);
+      }
+      const updatedUser = await response.json();
+      console.log("Updated User: ", updatedUser);
+      setIsUpdatingEmail(false);
+      setEmailUpdateSuccess(true);
+      setTimeout(() => {
+        setEmailUpdateSuccess(false);
+      }, 3000);
+    } catch (error) {
+      console.error("Error updating email: ", error);
+      setUpdateError("Failed to update email");
+      setIsUpdatingEmail(false);
+    }
+  };
+
+  const handleChangeAccount = async () => {
+    try {
+      await signOut({ redirect: false });
+      window.location.href = `/api/auth/signin/spotify?callbackUrl=${encodeURIComponent(
+        window.location.origin + '/profile'
+      )}&prompt=select_account`;
+    } catch (error) {
+      console.error("Error changing account:", error);
+      setUpdateError("Failed to change account. Please try again.");
+    }
+  };
+
+  return (
 
 	<div className="flex flex-col sm:flex-row min-h-screen px-8 sm:px-20 pt-22 gap-16 sm:gap-45 font-[family-name:var(--font-geist-sans)] max-w-7xl mx-auto">
       
@@ -148,9 +230,8 @@ const Profile = () => {
 
           {/* username and join date */}
           <div>
-            <h1 className="text-2xl font-bold">{userData? userData.display_name : "Loading. . ."}</h1>
-            <p className="text-gray-800 text-sm dark:text-gray-100">User since {userSince}</p>
-            <p className="text-gray-800 text-sm dark:text-gray-100">User since {userSince}</p>
+            <h1 className="text-2xl font-bold">{userBackendData?.display_name}</h1>
+            <p className="text-gray-800 text-sm dark:text-gray-100">User since {userSince ? formatUserSince(userSince) : "Loading..."}</p>
           </div>
         </div>
 
@@ -160,23 +241,63 @@ const Profile = () => {
           {/* change username */}
           <div className="glass-card p-4 rounded-2xl shadow-lg">
             <h2 className="text-lg font-semibold mb-2">Change Username</h2>
-            <input 
-              type="text"
-              value={userData? userData.display_name : "Loading. . ."}
-              onChange={(e) => setUsername(e.target.value)}
-              className="w-full p-2 rounded-lg border focus:outline-none bg-white/50 backdrop-blur-sm"
-            />
+            <div className="flex items-center gap-2">
+              <input 
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                className="flex-1 p-2 rounded-lg border focus:outline-none bg-white/50 backdrop-blur-sm"
+                placeholder="Enter new username"
+              />
+              <button 
+                onClick={handleUsernameUpdate}
+                disabled={isUpdatingUsername || !username.trim() || username === userBackendData?.display_name}
+                className={`whitespace-nowrap px-4 py-2 rounded-lg text-white ${
+                  isUpdatingUsername || !username.trim() || username === userBackendData?.display_name
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600"
+                }`}
+              >
+                {isUpdatingUsername ? "Updating..." : "Update"}
+              </button>
+            </div>
+            {usernameUpdateSuccess && (
+              <p className="text-green-500">Username updated successfully!</p>
+            )}
+            {updateError && (
+              <p className="text-red-500">Error: {updateError}</p>
+            )}
           </div>
 
           {/* change email */}
           <div className="glass-card p-4 rounded-2xl shadow-lg">
             <h2 className="text-lg font-semibold mb-2">Change Email</h2>
-            <input 
-              type="email"
-              value={userData? userData.email : "Loading. . ."}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full p-2 rounded-lg border focus:outline-none bg-white/50 backdrop-blur-sm"
-            />
+            <div className="flex items-center gap-2">
+              <input 
+                type="email"
+                value={email || "Loading. . ."}
+                onChange={(e) => setEmail(e.target.value)}
+                className="flex-1 p-2 rounded-lg border focus:outline-none bg-white/50 backdrop-blur-sm"
+                placeholder="Enter new email"
+              />
+              <button 
+                onClick={handleEmailUpdate}
+                disabled={isUpdatingEmail || !email.trim() || email === userBackendData?.email}
+                className={`whitespace-nowrap px-4 py-2 rounded-lg text-white ${
+                  isUpdatingEmail || !email.trim() || email === userBackendData?.email
+                    ? "bg-gray-400 cursor-not-allowed"
+                    : "bg-blue-500 hover:bg-blue-600"
+                }`}
+              >
+                {isUpdatingEmail ? "Updating..." : "Update"}
+              </button>
+            </div>
+            {emailUpdateSuccess && (
+              <p className="text-green-500">Email updated successfully!</p>
+            )}
+            {updateError && (
+              <p className="text-red-500">Error: {updateError}</p>
+            )}
           </div>
 
           {/* change spotify account */}
@@ -184,7 +305,9 @@ const Profile = () => {
             <h2 className="text-lg font-semibold mb-2">Spotify Account</h2>
             <div className="flex justify-between items-center">
               <span className="text-sm">Connected</span>
-              <button className="text-blue-400 text-sm hover:underline">
+              <button 
+                onClick={handleChangeAccount}
+                className="text-blue-400 text-sm hover:underline">
                 Change Account
               </button>
             </div>
@@ -260,7 +383,6 @@ const Profile = () => {
 	       )}
 	  </motion.div>
 
-        {/* Library */}
         {/* Library */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
