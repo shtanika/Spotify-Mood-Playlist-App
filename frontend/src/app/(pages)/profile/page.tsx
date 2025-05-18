@@ -60,7 +60,7 @@ const Profile = () => {
   const [usernameUpdateSuccess, setUsernameUpdateSuccess] = useState(false);
   const [emailUpdateSuccess, setEmailUpdateSuccess] = useState(false);
   const [email, setEmail] = useState("");
-  const userSince = "March 2025";
+  const [userSince, setUserSince] = useState("");
   const [darkMode, setDarkMode] = useState(false);
   const [notifications, setNotifications] = useState(true);
   const [explicitFilter, setExplicitFilter] = useState(false);
@@ -74,6 +74,15 @@ const Profile = () => {
   const handleDarkModeChange = (checked: boolean) => {
     setDarkMode(checked);
     setTheme(checked ? "dark" : "light");
+  };
+
+  const formatUserSince = (dateString: string): string => {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString('en-US', { 
+      month: 'long', 
+      year: 'numeric' 
+    });
   };
 
   useEffect(() => {
@@ -123,13 +132,10 @@ const Profile = () => {
           const userBackendResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/get_user/${session.spotifyId}`);
           const userBackendData = await userBackendResponse.json();
           setUserBackendData(userBackendData);
-          //console.log("User Backend Data: ", userBackendData);
-          if(userBackendData.email){
-            setEmail(userBackendData.email);
-          }
-          if(userBackendData.display_name){
-            setUsername(userBackendData.display_name);
-          }
+          console.log("User Backend Data: ", userBackendData);
+          setEmail(userBackendData.email);
+          setUsername(userBackendData.display_name);
+          setUserSince(userBackendData.created_at);
 
         } catch (error) {
           console.error("Error fetching user data: ", error);
@@ -212,7 +218,7 @@ const Profile = () => {
           {/* username and join date */}
           <div>
             <h1 className="text-2xl font-bold">{userBackendData?.display_name}</h1>
-            <p className="text-gray-800 text-sm dark:text-gray-100">User since {userSince}</p>
+            <p className="text-gray-800 text-sm dark:text-gray-100">User since {userSince ? formatUserSince(userSince) : "Loading..."}</p>
           </div>
         </div>
 
