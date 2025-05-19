@@ -20,6 +20,7 @@ const CreatePlaylist = () => {
   const [topTracks, setTopTracks] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
 
+  const [promptHistory, setPromptHistory] = useState<string[]>([]);
   const [spotifyIdFromSession, setSpotifyIdFromSession] = useState<string | undefined>(undefined);
   const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -50,12 +51,25 @@ const CreatePlaylist = () => {
       }
   }, [session, status]);
 
-  //examples of previous prompts (static for now)
-  const promptHistory = [
-    "Chill sunset vibes",
-    "Energizing workout mix",
-    "Mellow and nostalgic",
-  ];
+  // Previous prompts
+  useEffect(() => {
+    if (status === "authenticated" && session?.spotifyId) {
+      const fetchPromptHistory = async () => {
+        const response = await fetch(`${BACKEND_API_URL}/get_prompts_by_spotify_id/${session.spotifyId}`);
+        if (response.ok) {
+          const prompts = await response.json();
+          // Get the mood from the most recent prompts (up to 3)
+          const recentPrompts = prompts
+            .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .slice(0, 3)
+            .map((prompt: any) => prompt.mood);
+          setPromptHistory(recentPrompts);
+        }
+      };
+      fetchPromptHistory();
+    }
+  }, [session, status, BACKEND_API_URL]);
+
 
   //handles selection from prompt history
   const handlePromptClick = (prompt: string) => {
@@ -156,6 +170,7 @@ const CreatePlaylist = () => {
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      setShowHistory(false);
       handleSubmit();
     }
   };
@@ -184,7 +199,8 @@ const CreatePlaylist = () => {
             onKeyDown={handleKeyPress}
             onFocus={() => setShowHistory(true)}
             onBlur={() => setTimeout(() => setShowHistory(false), 200)}
-            className="w-full p-4 pr-12 glass-card text-black placeholder-gray-600 focus:outline-none"
+            className="w-full p-4 pr-12 glass-card text-black placeholder-gray-600 focus:outline-none
+            dark:text-white dark:placeholder-gray-400"
           />
           <button
             onClick={handleSubmit}
@@ -196,22 +212,22 @@ const CreatePlaylist = () => {
                 !input.trim() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
               }`}
           >
-            <Wand2 className="w-5 h-5 text-gray-700" />
+            <Wand2 className="w-5 h-5 text-gray-700 dark:text-gray-100" />
           </button>
 
           {/* Prompt history popup */}
-          {showHistory && (
+          {showHistory && promptHistory.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               className="glass-card absolute left-0 top-full mt-2 w-full z-10"
             >
-              <p className="text-gray-700 text-sm mb-2 px-4 pt-4">Previous prompts:</p>
+              <p className="text-gray-700 text-sm mb-2 px-4 pt-4 dark:text-gray-400">Previous prompts:</p>
               {promptHistory.map((prompt, index) => (
                 <p
                   key={index}
-                  className="p-4 hover:bg-white/50 transition-colors cursor-pointer text-sm text-gray-800"
+                  className="p-4 hover:bg-white/50 transition-colors cursor-pointer text-sm text-gray-800 dark:text-gray-400 dark:hover:bg-gray-900"
                   onClick={() => handlePromptClick(prompt)}
                 >
                   {prompt}

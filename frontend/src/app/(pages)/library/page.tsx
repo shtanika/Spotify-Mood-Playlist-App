@@ -53,7 +53,7 @@ export default function Library() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-gray-600 text-center p-8"
+            className="text-gray-600 text-center p-8 dark:text-gray-100"
           >
             Loading your playlists...
           </motion.p>
@@ -68,10 +68,10 @@ export default function Library() {
                 className="glass-card p-6 flex items-start justify-between hover:bg-white/10 transition-colors"
               >
                 <div className="flex-1">
-                  <h2 className="text-lg font-semibold text-black mb-2">
+                  <h2 className="text-lg font-semibold text-black mb-2 dark:text-white">
                     {playlist.name}
                   </h2>
-                  <p className="text-gray-600 text-sm">
+                  <p className="text-gray-600 text-sm dark:text-gray-100">
                     {playlist.tracks.total} {playlist.tracks.total === 1 ? "song" : "songs"}
                   </p>
                   <Link

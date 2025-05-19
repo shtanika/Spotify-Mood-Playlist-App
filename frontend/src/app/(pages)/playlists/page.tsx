@@ -163,7 +163,8 @@ function PlaylistContent() {
           href={playlist.external_urls.spotify}
           target="_blank" // opens to new tab
           rel="noopener noreferrer" // for good security practice after using _blank
-          className="px-4 py-2 flex items-center gap-2 bg-gray-300 text-black border border-black rounded-full hover:bg-gray-400 transition"
+          className="px-4 py-2 flex items-center gap-2 bg-gray-300 text-black border border-black rounded-full hover:bg-gray-400 transition
+          dark:bg-black dark:text-white dark:hover:bg-gray-900"
           >
           <BsSpotify className="w-5 h-5"/> View on Spotify
         </a>
@@ -177,10 +178,10 @@ function PlaylistContent() {
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.3, delay: index * 0.1 }}
-            className="flex items-center p-4 bg-white/30 text-black rounded-2xl shadow-md border border-gray-900/20" // Updated background and border
+            className="flex items-center p-4 bg-white/30 text-black rounded-2xl shadow-md border border-gray-900/20 dark:bg-black/30 dark:border-white/10 dark:text-white" // Updated background and border
           >
             {/* album/single art */}
-            <div className="w-16 h-16 bg-gray-700 rounded-lg flex-shrink-0">
+            <div className="w-16 h-16 bg-gray-700 rounded-lg flex-shrink-0 dark:bg-gray-300">
               <img
                 src={song.albumArt}
                 alt={song.title}
@@ -191,15 +192,15 @@ function PlaylistContent() {
             {/* song details */}
             <div className="ml-4 flex-1 flex flex-col">
               <span className="font-semibold">{song.title}</span>
-              <span className="text-gray-800 text-sm">{song.artist}</span>
+              <span className="text-gray-800 text-sm dark:text-gray-100">{song.artist}</span>
             </div>
 
             {/* song duration */}
-            <span className="text-gray-700 text-sm mr-4">{song.duration}</span>
+            <span className="text-gray-700 text-sm mr-4 dark:text-gray-200">{song.duration}</span>
 
             {/* play button */}
             <a href={song.spotifyUrl} target="_blank" rel="noopener noreferrer" className="ml-auto">
-              <PlayCircle className="w-8 h-8 text-gray-800 hover:text-white transition" />
+              <PlayCircle className="w-8 h-8 text-gray-800 hover:text-white dark:text-gray-100 dark:hover:text-black transition" />
             </a>
           </motion.div>
         ))}
