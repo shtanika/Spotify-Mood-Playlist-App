@@ -20,6 +20,7 @@ const CreatePlaylist = () => {
   const [topTracks, setTopTracks] = useState([]);
   const [topArtists, setTopArtists] = useState([]);
 
+  const [promptHistory, setPromptHistory] = useState<string[]>([]);
   const [spotifyIdFromSession, setSpotifyIdFromSession] = useState<string | undefined>(undefined);
   const BACKEND_API_URL = process.env.NEXT_PUBLIC_BACKEND_API_URL;
 
@@ -50,12 +51,25 @@ const CreatePlaylist = () => {
       }
   }, [session, status]);
 
-  //examples of previous prompts (static for now)
-  const promptHistory = [
-    "Chill sunset vibes",
-    "Energizing workout mix",
-    "Mellow and nostalgic",
-  ];
+  // Previous prompts
+  useEffect(() => {
+    if (status === "authenticated" && session?.spotifyId) {
+      const fetchPromptHistory = async () => {
+        const response = await fetch(`${BACKEND_API_URL}/get_prompts_by_spotify_id/${session.spotifyId}`);
+        if (response.ok) {
+          const prompts = await response.json();
+          // Get the mood from the most recent prompts (up to 3)
+          const recentPrompts = prompts
+            .sort((a: any, b: any) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+            .slice(0, 3)
+            .map((prompt: any) => prompt.mood);
+          setPromptHistory(recentPrompts);
+        }
+      };
+      fetchPromptHistory();
+    }
+  }, [session, status, BACKEND_API_URL]);
+
 
   //handles selection from prompt history
   const handlePromptClick = (prompt: string) => {
@@ -202,7 +216,7 @@ const CreatePlaylist = () => {
           </button>
 
           {/* Prompt history popup */}
-          {showHistory && (
+          {showHistory && promptHistory.length > 0 && (
             <motion.div
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}

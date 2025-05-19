@@ -232,7 +232,30 @@ def init_routes(app):
                     'playlist_name': prompt.playlist.playlist_name
                 } if prompt.playlist else None
             } for prompt in prompts]
-        
+    
+    @api.route('/get_prompts_by_spotify_id/<spotify_id>')
+    class GetUserPromptsBySpotifyId(Resource):
+        @api.doc(description="Get all prompts for a user by their Spotify ID.")
+        @api.response(200, 'Prompts found')
+        def get(self, spotify_id):
+            user = User.query.filter_by(spotify_id=spotify_id).first()
+            if not user:
+                return {'error': 'User not found'}, 404
+
+            prompts = Prompt.query.filter_by(user_id=user.id).all()
+            return [{
+                'id': str(prompt.id),
+                'user_id': str(prompt.user_id),
+                'mood': prompt.mood,
+                'additional_notes': prompt.additional_notes,
+                'created_at': prompt.created_at.isoformat(),
+                'playlist': {
+                    'id': str(prompt.playlist.id),
+                    'spotify_playlist_id': prompt.playlist.spotify_playlist_id,
+                    'playlist_name': prompt.playlist.playlist_name
+                } if prompt.playlist else None
+            } for prompt in prompts]
+
     @api.route('/create_prompt')
     class CreatePrompt(Resource):
         @api.expect(prompt_model)
