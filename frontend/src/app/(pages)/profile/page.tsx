@@ -236,7 +236,7 @@ const Profile = () => {
 		      {userPlaylistsData ? userPlaylistsData[0]?.name : "Loading. . ."}
 		  </p>
 		  <Link
-		      href="/playlist-view"
+		      href={userPlaylistsData && userPlaylistsData[0]?.id ? `playlists?playlistId=${userPlaylistsData[0].id}` : '/library'}
 		      className="text-blue-400 text-sm hover:underline flex items-center mt-2"
 		  >
 		      View Playlist <ChevronRight className="w-4 h-4 ml-1" />
@@ -296,9 +296,6 @@ const Profile = () => {
 	  >
 	      <div>
 		  <h2 className="text-lg font-semibold mb-2">Your Listening Stats</h2>
-		  <p className="text-gray-400 text-sm">
-		      <strong>Top Genre:</strong> Lo-Fi
-		  </p>
 		  {topArtistsData && topArtistsData.length > 0 ? (
 		      <p className="text-gray-400 text-sm">
 			  <strong>Top Artist:</strong> {topArtistsData[0]?.name || "Unknown Artist"}

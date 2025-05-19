@@ -21,7 +21,7 @@ export default function About() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1, delay: 0.5 }}
-          className="text-lg sm:text-2xl mb-6 text-gray-800 opacity-90"
+          className="text-lg sm:text-2xl mb-6"
         >
           Our team is passionate about music and AI-driven personalization. <br />  
           We believe current playlist generators lack the depth of true personalization and fail to match user moods accurately. <br />
