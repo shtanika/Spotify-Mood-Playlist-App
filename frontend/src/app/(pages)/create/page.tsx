@@ -184,7 +184,8 @@ const CreatePlaylist = () => {
             onKeyDown={handleKeyPress}
             onFocus={() => setShowHistory(true)}
             onBlur={() => setTimeout(() => setShowHistory(false), 200)}
-            className="w-full p-4 pr-12 glass-card text-black placeholder-gray-600 focus:outline-none"
+            className="w-full p-4 pr-12 glass-card text-black placeholder-gray-600 focus:outline-none
+            dark:text-white dark:placeholder-gray-400"
           />
           <button
             onClick={handleSubmit}
@@ -196,7 +197,7 @@ const CreatePlaylist = () => {
                 !input.trim() ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
               }`}
           >
-            <Wand2 className="w-5 h-5 text-gray-700" />
+            <Wand2 className="w-5 h-5 text-gray-700 dark:text-gray-100" />
           </button>
 
           {/* Prompt history popup */}
@@ -207,11 +208,11 @@ const CreatePlaylist = () => {
               exit={{ opacity: 0, y: -10 }}
               className="glass-card absolute left-0 top-full mt-2 w-full z-10"
             >
-              <p className="text-gray-700 text-sm mb-2 px-4 pt-4">Previous prompts:</p>
+              <p className="text-gray-700 text-sm mb-2 px-4 pt-4 dark:text-gray-400">Previous prompts:</p>
               {promptHistory.map((prompt, index) => (
                 <p
                   key={index}
-                  className="p-4 hover:bg-white/50 transition-colors cursor-pointer text-sm text-gray-800"
+                  className="p-4 hover:bg-white/50 transition-colors cursor-pointer text-sm text-gray-800 dark:text-gray-400 dark:hover:bg-gray-900"
                   onClick={() => handlePromptClick(prompt)}
                 >
                   {prompt}
