@@ -129,11 +129,6 @@ const CreatePlaylist = () => {
       const data = await response.json();
       console.log("Backend response:", data);
 
-      setPlaylistDescription(`Seeds:\n${JSON.stringify(data.seeds, null, 2)}\n\n` +
-                               `Gemini Response:\n${data.gemini_response}\n\n` +
-                               `Track Spotify IDs:\n${JSON.stringify(data.track_spotify_ids, null, 2)}\n\n` +
-                               `Artist Spotify IDs:\n${JSON.stringify(data.artist_spotify_ids, null, 2)}\n\n` +
-                               `Recommendations:\n${JSON.stringify(data.recommendations, null, 2)}`);
 
       // Store prompt in database
       /*
@@ -149,8 +144,12 @@ const CreatePlaylist = () => {
         });
       }
       */
-     
+
+      setPlaylistDescription(null);
       setError(null);
+      // router push
+      router.push(`/playlists?playlistId=${data.playlist_id}`);
+      
     } catch (error: unknown) {
       let message = '';
       if (error instanceof Error){
