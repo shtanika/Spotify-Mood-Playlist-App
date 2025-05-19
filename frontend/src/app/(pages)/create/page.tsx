@@ -156,6 +156,7 @@ const CreatePlaylist = () => {
   const handleKeyPress = (e: KeyboardEvent<HTMLInputElement>) => {
     if (e.key === 'Enter') {
       e.preventDefault();
+      setShowHistory(false);
       handleSubmit();
     }
   };
