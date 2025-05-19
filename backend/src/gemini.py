@@ -21,8 +21,8 @@ User's Top Artists:
 User's Top Tracks:
 {tracks_json}
 
-- The playlist should only include relevant songs from the user's top artists and tracks if they match the theme. Prioritize the user's top artists.
-- Keep it cohesive to the mood.
+- The playlist should only include relevant songs from the user's top artists and tracks ONLY if they match the theme. Prioritize using the user's top artists and artists which are related to them. To determine song/artist relevance, consider genre and thematic content of the song or the artist's discography.
+- Keep all song choices cohesive to the mood. Must be as accurate as possible both in sound and in theme. Choices must be defendable.
 - Output only a list of 20 songs in this JSON format:
 
 [
@@ -30,7 +30,7 @@ User's Top Tracks:
     ...
 ]
 
-Do not include any explanation or text, only the list of 20 songs.
+Do not include any explanation or other text, only the list of 20 songs.
 """
 
 def get_gemini_recommendation(prompt_input, top_artists, top_tracks):
