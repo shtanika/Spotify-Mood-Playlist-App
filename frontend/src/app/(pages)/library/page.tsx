@@ -53,7 +53,7 @@ export default function Library() {
           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="text-gray-600 text-center p-8"
+            className="text-gray-600 text-center p-8 dark:text-gray-100"
           >
             Loading your playlists...
           </motion.p>
