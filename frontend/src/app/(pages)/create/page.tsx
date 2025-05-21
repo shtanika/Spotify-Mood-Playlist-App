@@ -28,9 +28,8 @@ const CreatePlaylist = () => {
       if (status === "loading") return;
       
       if (status === "authenticated" && session?.accessToken && session?.user) {
-        //console.log("Authenticated");
-        //console.log("Spotify Id:", session.spotifyId);
-        
+        console.log("Authenticated");
+        console.log("Spotify Id:", session.spotifyId);
 
 
 	  const fetchSpotifyData = async () => {
@@ -128,7 +127,7 @@ const CreatePlaylist = () => {
       }
 
       const data = await response.json();
-      //console.log("Backend response:", data);
+      console.log("Backend response:", data);
 
 
       // Store prompt in database
