@@ -68,9 +68,7 @@ const Profile = () => {
 
   // Initialize darkMode state based on theme
   useEffect(() => {
-    if (theme) {
-      setDarkMode(theme === "dark");
-    }
+    setDarkMode(theme === "dark");
   }, [theme]);
 
   // Update theme when darkMode changes
@@ -91,8 +89,8 @@ const Profile = () => {
   useEffect(() => {
     if (status === "loading") return;
     if (status === "authenticated") {
-      //console.log("Authenticated");
-      //console.log("Spotify Id:", session.spotifyId);      
+      console.log("Authenticated");
+      console.log("Spotify Id:", session.spotifyId);      
     }
     if(session?.accessToken){
       const fetchUserData = async () => {
@@ -106,17 +104,17 @@ const Profile = () => {
             fetch(`/api/spotify/savedTracks?accessToken=${session.accessToken}?limit=4`),
             fetch(`/api/spotify/getUserPlaylists?accessToken=${session.accessToken}`)
           ]);
-          //console.log("API response statuses: ", userResponse.status, tracksResponse.status, artistsResponse.status);
+          console.log("API response statuses: ", userResponse.status, tracksResponse.status, artistsResponse.status);
           const userData = await userResponse.json();
-          //console.log("User Data: ", userData);
+          console.log("User Data: ", userData);
           const topTracksData = await tracksResponse.json();
-          //console.log("Top Tracks Data: ", topTracksData);
+          console.log("Top Tracks Data: ", topTracksData);
           const topArtistsData = await artistsResponse.json();
-          //console.log("Top Artists Data: ", topArtistsData);
+          console.log("Top Artists Data: ", topArtistsData);
           const savedTracksData = await savedTracksResponse.json();
-          //console.log("Saved Tracks Data: ", savedTracksData);
+          console.log("Saved Tracks Data: ", savedTracksData);
           const userPlaylistsData = await userPlaylistsResponse.json();
-          //console.log("User Playlists Data: ", userPlaylistsData);
+          console.log("User Playlists Data: ", userPlaylistsData);
 
           // check for explicit filter
           if(userData.explicit_content?.filter_enabled === false){
@@ -135,9 +133,9 @@ const Profile = () => {
           const userBackendResponse = await fetch(`${process.env.NEXT_PUBLIC_BACKEND_API_URL}/get_user/${session.spotifyId}`);
           const userBackendData = await userBackendResponse.json();
           setUserBackendData(userBackendData);
-          //console.log("User Backend Data: ", userBackendData);
-          setEmail(userBackendData.email || "");
-          setUsername(userBackendData.display_name || "");
+          console.log("User Backend Data: ", userBackendData);
+          setEmail(userBackendData.email);
+          setUsername(userBackendData.display_name);
           setUserSince(userBackendData.created_at);
 
         } catch (error) {
@@ -146,7 +144,7 @@ const Profile = () => {
       };
       fetchUserData();
     } else {
-      //console.log("Not authenticated");
+      console.log("Not authenticated");
     }
   }, [session?.accessToken, status]);
 
@@ -166,7 +164,7 @@ const Profile = () => {
         throw new Error(`Failed to update username: ${response.statusText}`);
       }
       const updatedUser = await response.json();
-      //console.log("Updated User: ", updatedUser);
+      console.log("Updated User: ", updatedUser);
       setIsUpdatingUsername(false);
       setUsernameUpdateSuccess(true);
       setTimeout(() => {
@@ -190,7 +188,7 @@ const Profile = () => {
         throw new Error(`Failed to update email: ${response.statusText}`);
       }
       const updatedUser = await response.json();
-      //console.log("Updated User: ", updatedUser);
+      console.log("Updated User: ", updatedUser);
       setIsUpdatingEmail(false);
       setEmailUpdateSuccess(true);
       setTimeout(() => {
