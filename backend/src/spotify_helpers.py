@@ -95,7 +95,7 @@ def add_tracks_spotify_playlist(access_token, playlist_id, track_uris):
 
     add_tracks_url = f'https://api.spotify.com/v1/playlists/{playlist_id}/tracks'
     response = requests.post(add_tracks_url, json=tracks_data, headers=headers)
-    print(f"add_tracks_spotify_playlist response: {response.status_code}, {response.text}")
+    #print(f"add_tracks_spotify_playlist response: {response.status_code}, {response.text}")
 
     if response.status_code != 201:
         error_message = f"Failed to add tracks to spotify playlist. Status code: {response.status_code}, Response: {response.text}"

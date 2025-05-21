@@ -24,7 +24,7 @@ export default function Library() {
         try {
           const response = await fetch(`/api/spotify/getUserPlaylists?accessToken=${session.accessToken}`);
           const data = await response.json();
-          console.log("Fetched Playlists: ", data);
+          //console.log("Fetched Playlists: ", data);
           setPlaylists(data);
         } catch (error) {
           console.error("Error fetching playlists:", error);

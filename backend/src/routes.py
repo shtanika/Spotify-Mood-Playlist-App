@@ -405,7 +405,7 @@ def init_routes(app):
 
             # Get Spotify user data (top tracks and top artists) JOSHUA
             top_data, error = get_spotify_top_data(access_token)
-            print(f"TOP DATA: {top_data}")
+            #print(f"TOP DATA: {top_data}")
             if error:
                 return error, 500
             if top_data:
@@ -446,7 +446,7 @@ def init_routes(app):
             else:
                 json_string = full_text.strip()
 
-            current_app.logger.info(f"Gemini JSON Response: {json_string}")
+            #current_app.logger.info(f"Gemini JSON Response: {json_string}")
 
             # 3. parse the JSON string
             try:
@@ -457,11 +457,11 @@ def init_routes(app):
 
             if not recommendations:
                 return {'error': 'No songs extracted from Gemini response', 'raw': full_text}, 500
-            current_app.logger.info(f"Extracted recommendations: {recommendations}")
+            #current_app.logger.info(f"Extracted recommendations: {recommendations}")
 
             # 4. search for track URIs on Spotify
             track_uris, tracks, not_found = get_track_uris_from_spotify(access_token, recommendations)  #combine track search
-            current_app.logger.info(f"Tracks: {tracks}")
+            #current_app.logger.info(f"Tracks: {tracks}")
             if not track_uris and not not_found:
                 return {'error': 'No tracks found on Spotify', 'recommendations': recommendations}, 500
 
@@ -582,7 +582,7 @@ def get_track_uris_from_spotify(access_token, recommendations):
         artist_name = rec.get('artist')
 
         if not track_name or not artist_name:
-            print(f"Skipping invalid recommendation: {rec}")
+            #print(f"Skipping invalid recommendation: {rec}")
             not_found.append(rec)
             continue
 
@@ -625,6 +625,6 @@ def get_track_uris_from_spotify(access_token, recommendations):
                     else:
                         not_found.append(rec) 
         else:
-            print(f"Spotify search failed for {query}: {response.json()}")
+            #print(f"Spotify search failed for {query}: {response.json()}")
             not_found.append(rec)  #add to not found, and continue
     return track_uris, tracks, not_found

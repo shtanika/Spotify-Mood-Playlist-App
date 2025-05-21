@@ -43,18 +43,18 @@ function PlaylistContent() {
   const playlistId = searchParams.get("playlistId");
 
   useEffect(() => {
-    console.log("Session Status:", status);
-    console.log("Access Token:", session?.accessToken ? "Available" : "Not Available");
-    console.log("Playlist ID from URL:", playlistId);
+    //console.log("Session Status:", status);
+    //console.log("Access Token:", session?.accessToken ? "Available" : "Not Available");
+    //console.log("Playlist ID from URL:", playlistId);
 
     if (status === "authenticated" && session?.accessToken) {
-      console.log("Fetching playlist data...");
+      //console.log("Fetching playlist data...");
       const fetchPlaylistData = async () => {
         try {
           let playlistDetails;
 
           if (playlistId) {
-            console.log(`Workspaceing playlist details for ID: ${playlistId}`);
+            //console.log(`Workspaceing playlist details for ID: ${playlistId}`);
             const playlistResponse = await fetch(
               `/api/spotify/getPlaylist?accessToken=${session.accessToken}&playlistID=${playlistId}`
             );
@@ -68,9 +68,9 @@ function PlaylistContent() {
               return;
             }
             playlistDetails = await playlistResponse.json();
-            console.log("Playlist details:", playlistDetails);
+            //console.log("Playlist details:", playlistDetails);
           } else {
-            console.log("Fetching user playlists to get the most recent...");
+            //console.log("Fetching user playlists to get the most recent...");
             const userPlaylistsResponse = await fetch(
               `/api/spotify/getUserPlaylists?accessToken=${session.accessToken}`
             );
@@ -85,20 +85,20 @@ function PlaylistContent() {
             }
 
             const userPlaylistsData = await userPlaylistsResponse.json();
-            console.log("User playlists data:", userPlaylistsData);
+            //console.log("User playlists data:", userPlaylistsData);
 
             if (userPlaylistsData && userPlaylistsData.length > 0) {
               playlistDetails = userPlaylistsData[0];
-              console.log("Most recent playlist details:", playlistDetails);
+              //console.log("Most recent playlist details:", playlistDetails);
             } else {
-              console.log("No playlists found for the user.");
+              //console.log("No playlists found for the user.");
               setPlaylist(null); //handle no playlist found
               return;
             }
           }
 
           if (playlistDetails) {
-            console.log("Fetching all playlist tracks...");
+            //console.log("Fetching all playlist tracks...");
             const playlistTracksResponse = await fetch(
               `/api/spotify/getPlaylistTracks?accessToken=${session.accessToken}&playlistID=${playlistDetails.id}&limit=100`
             );
@@ -112,9 +112,9 @@ function PlaylistContent() {
               return;
             }
 
-            console.log("Playlist tracks response OK");
+            //console.log("Playlist tracks response OK");
             const playlistTracksData = await playlistTracksResponse.json();
-            console.log("Playlist tracks data:", playlistTracksData);
+            //console.log("Playlist tracks data:", playlistTracksData);
 
             const songs = playlistTracksData.map((item: SpotifyTrack) => ({
               title: item.name,
@@ -124,7 +124,7 @@ function PlaylistContent() {
               spotifyUrl: item.external_urls.spotify,
             }));
 
-            console.log("Processed songs:", songs);
+            //console.log("Processed songs:", songs);
             setPlaylist({
               name: playlistDetails.name,
               songs: songs,
@@ -132,10 +132,10 @@ function PlaylistContent() {
                 spotify: playlistDetails.external_urls.spotify
               }
             });
-            console.log("Playlist state updated:", {
-              name: playlistDetails.name,
-              songs: songs,
-            });
+            //console.log("Playlist state updated:", {
+              //name: playlistDetails.name,
+              //songs: songs,
+            //});
           }
         } catch (error) {
           console.error("Error fetching playlist data:", error);
